@@ -153,7 +153,7 @@ class Hooks
 			return '#uknown-target-for:' . $constructor . '/' . $type;
 		}
 
-		return Route::format($pattern, $target);
+		return Route::format_pattern($pattern, $target);
 	}
 
 	/**
