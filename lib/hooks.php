@@ -19,6 +19,7 @@ use ICanBoogie\Route;
 use Icybee\Modules\Cache\Collection as CacheCollection;
 use Icybee\Modules\Nodes\Node;
 use Icybee\Modules\Sites\Site;
+use ICanBoogie\Routing\Pattern;
 
 class Hooks
 {
@@ -153,7 +154,7 @@ class Hooks
 			return '#uknown-target-for:' . $constructor . '/' . $type;
 		}
 
-		return Route::format_pattern($pattern, $target);
+		return Pattern::from($pattern)->format($target);
 	}
 
 	/**
