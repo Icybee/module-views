@@ -68,7 +68,7 @@ class View extends Object
 	protected $renders;
 	protected $options;
 
-	protected function volatile_get_options()
+	protected function get_options()
 	{
 		return $this->options;
 	}
@@ -80,7 +80,7 @@ class View extends Object
 
 	protected $module;
 
-	protected function get_module()
+	protected function lazy_get_module()
 	{
 		global $core;
 
@@ -512,7 +512,7 @@ class View extends Object
 
 	protected $element;
 
-	protected function volatile_get_element()
+	protected function get_element()
 	{
 		return $this->element;
 	}
@@ -590,7 +590,7 @@ EOT;
 	 *
 	 * @return \Icybee\Modules\Views\TemplateResolver
 	 */
-	protected function get_template_resolver()
+	protected function lazy_get_template_resolver()
 	{
 		return new TemplateResolver($this->id, $this->type, $this->module_id);
 	}

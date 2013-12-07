@@ -44,7 +44,7 @@ class TemplateResolver extends \ICanBoogie\Object
 		$this->module_id = $module_id;
 	}
 
-	protected function get_templates()
+	protected function lazy_get_templates()
 	{
 		global $core;
 
