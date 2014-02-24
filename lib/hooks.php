@@ -124,7 +124,7 @@ class Hooks
 		$constructor = strtr($constructor, '.', '_');
 
 		$key = 'views.targets.' . $constructor . '/' . $type;
-		$site_id = isset($target->siteid) ? $target->siteid : $core->site_id;
+		$site_id = !empty($target->siteid) ? $target->siteid : $core->site_id;
 
 		if (isset(self::$url_cache_by_siteid[$site_id][$key]))
 		{
