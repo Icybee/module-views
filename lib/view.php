@@ -48,6 +48,11 @@ class View extends Object
 
 	protected $id;
 
+	protected function get_id()
+	{
+		return $this->id;
+	}
+
 	/**
 	 * The amount of data the view is rendering.
 	 *
