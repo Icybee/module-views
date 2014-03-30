@@ -30,6 +30,9 @@ use Icybee\Modules\Nodes\Node;
 
 /**
  * A view on provided data.
+ *
+ * @property-read string $id The identifier of the view.
+ * @property-read mixed $data The data provided by the view's provider.
  */
 class View extends Object
 {
@@ -95,6 +98,13 @@ class View extends Object
 		}
 
 		return $core->modules[$this->module_id];
+	}
+
+	private $data;
+
+	protected function get_data()
+	{
+		return $this->data;
 	}
 
 	public $module_id;
@@ -343,7 +353,7 @@ class View extends Object
 
 		$provider = new $provider($this, $context, $this->module, $conditions, $this->renders);
 
-		return $bind = $provider();
+		return $provider();
 	}
 
 	/**
@@ -372,6 +382,8 @@ class View extends Object
 			$this->range = $this->init_range();
 
 			$bind = $this->provide($this->options['provider'], $engine->context, $page->url_variables + $_GET); // FIXME-20120628: we should be using Request here
+
+			$this->data = $bind;
 
 			$engine->context['this'] = $bind;
 			$engine->context['range'] = $this->range;
