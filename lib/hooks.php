@@ -15,6 +15,7 @@ use ICanBoogie\ActiveRecord;
 use ICanBoogie\Operation;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Route;
+use ICanBoogie\Routing\Pattern as RoutingPattern;
 
 use Icybee\Modules\Cache\Collection as CacheCollection;
 use Icybee\Modules\Nodes\Node;
@@ -231,20 +232,40 @@ class Hooks
 	 * Returns the URL of a view.
 	 *
 	 * @param Site $site
-	 * @param string $viewid
+	 * @param string $view_id The identifier of the view.
+	 * @param mixed Optionnal arguments to format the URL, if the URL uses a pattern.
 	 *
 	 * @return string
 	 */
-	static public function resolve_view_url(Site $site, $viewid)
+	static public function resolve_view_url(Site $site, $view_id, $args=null)
 	{
-		if (isset(self::$view_url_cache[$viewid]))
+		if (isset(self::$view_url_cache[$view_id]))
 		{
-			return self::$view_url_cache[$viewid];
+			return self::$view_url_cache[$view_id];
 		}
 
-		$target = $site->resolve_view_target($viewid);
+		$target = $site->resolve_view_target($view_id);
 
-		return self::$view_url_cache[$viewid] = $target ? $target->url : '#unknown-target-for-view-' . $viewid;
+		if (!$target)
+		{
+			return '#unknown-target-for-view-' . $view_id;
+		}
+
+		$url_pattern = $target->url_pattern;
+
+		if (!RoutingPattern::is_pattern($url_pattern))
+		{
+			self::$view_url_cache[$view_id] = $target->url;
+		}
+
+		if (!$args)
+		{
+			throw new \Exception(\ICanBoogie\format("Route %route requires args to be formatted.", [ 'route' => $url_pattern ]));
+		}
+
+		$pattern = RoutingPattern::from($url_pattern);
+
+		return $pattern->format($args);
 	}
 
 	/*
