@@ -255,7 +255,7 @@ class Hooks
 
 		if (!RoutingPattern::is_pattern($url_pattern))
 		{
-			self::$view_url_cache[$view_id] = $target->url;
+			return self::$view_url_cache[$view_id] = $target->url;
 		}
 
 		if (!$args)

@@ -27,6 +27,8 @@ use Brickrouge\Pager;
 use BlueTihi\Context;
 
 use Icybee\Modules\Nodes\Node;
+use ICanBoogie\ActiveRecord\FetcherInterface;
+use Icybee\Modules\Views\View\RenderEvent;
 
 /**
  * A view on provided data.
@@ -150,11 +152,11 @@ class View extends Object
 
 		try
 		{
-			$this->fire_render_before(array('id' => $this->id));
+// 			$this->fire_render_before(array('id' => $this->id));
 
 			$rc = $this->render_outer_html();
 
-			$this->fire_render(array('id' => $this->id, 'rc' => &$rc));
+// 			$this->fire_render(array('id' => $this->id, 'rc' => &$rc));
 
 			return $rc;
 		}
@@ -185,7 +187,8 @@ class View extends Object
 				(
 					Pager::T_COUNT => $range['count'],
 					Pager::T_LIMIT => $range['limit'],
-					Pager::T_POSITION => $range['page']
+					Pager::T_POSITION => $range['page'],
+					Pager::T_WITH => $range['with']
 				)
 			);
 		}
@@ -234,18 +237,6 @@ class View extends Object
 	protected function fire_render_before(array $params=array())
 	{
 		return new View\BeforeRenderEvent($this, $params);
-	}
-
-	/**
-	 * Fires the `render` event on the view using the specified parameters.
-	 *
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	protected function fire_render(array $params=array())
-	{
-		return new View\RenderEvent($this, $params);
 	}
 
 	/**
@@ -333,13 +324,21 @@ class View extends Object
 		(
 			'page' => empty($_GET['page']) ? 0 : (int) $_GET['page'],
 			'limit' => $limit,
-			'count' => null
+			'count' => null,
+			'with' => []
 		);
 	}
 
-	protected function provide($provider, &$context, array $conditions)
+	protected $provider;
+
+	protected function get_provider()
 	{
-		if (!class_exists($provider))
+		return $this->provider;
+	}
+
+	protected function provide($provider, array $conditions)
+	{
+		if (!($provider instanceof FetcherInterface) && !class_exists($provider))
 		{
 			throw new \InvalidArgumentException(\ICanBoogie\format
 			(
@@ -351,9 +350,23 @@ class View extends Object
 			));
 		}
 
-		$provider = new $provider($this, $context, $this->module, $conditions, $this->renders);
+		if ($this->renders == self::RENDERS_ONE)
+		{
+			$conditions['limit'] = 1;
+		}
 
-		return $provider();
+		$this->provider = $provider = new $provider($this->module->model);
+
+		$rc =  $provider($conditions);
+
+		$this->range['count'] = $provider->count;
+
+		if ($this->renders == self::RENDERS_ONE)
+		{
+			return current($rc);
+		}
+
+		return $rc;
 	}
 
 	/**
@@ -380,10 +393,21 @@ class View extends Object
 			list($constructor, $name) = explode('/', $id);
 
 			$this->range = $this->init_range();
+			$conditions = $page->url_variables + $_GET;
 
-			$bind = $this->provide($this->options['provider'], $engine->context, $page->url_variables + $_GET); // FIXME-20120628: we should be using Request here
+			$conditions['limit'] = $this->range['limit'];
+			$conditions['page'] = $this->range['page'];
+
+			// FIXME-20120628: we should be using Request here
+			$bind = $this->provide($this->options['provider'], $conditions);
 
 			$this->data = $bind;
+			// TODO-20140505: exlude conditions extracted from the pathinfo
+			$this->range['with'] = $this->provider->conditions + [
+
+				'order' => $this->provider->order
+
+			];
 
 			$engine->context['this'] = $bind;
 			$engine->context['range'] = $this->range;
@@ -574,7 +598,13 @@ class View extends Object
 
 		$template_path = $this->resolve_template_location();
 
-		$html = $this->render_inner_html($template_path, $this->engine);
+		#
+
+		$html = $o_html = $this->render_inner_html($template_path, $this->engine);
+
+		new RenderEvent($this, $html);
+
+		#
 
 		if (preg_match('#\.html$#', $this->page->template))
 		{
@@ -687,9 +717,24 @@ class BeforeRenderEvent extends \ICanBoogie\Event
  */
 class RenderEvent extends \ICanBoogie\Event
 {
-	public function __construct(\Icybee\Modules\Views\View $target, array $payload)
+	/**
+	 * Reference to the inner HTML of the view.
+	 *
+	 * @var string
+	 */
+	public $html;
+
+	/**
+	 * Create an event of type `render`.
+	 *
+	 * @param \Icybee\Modules\Views\View $target
+	 * @param string $html Reference to the inner HTML of the view.
+	 */
+	public function __construct(\Icybee\Modules\Views\View $target, &$html)
 	{
-		parent::__construct($target, 'render', $payload);
+		$this->html = &$html;
+
+		parent::__construct($target, 'render');
 	}
 }
 

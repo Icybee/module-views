@@ -79,6 +79,9 @@ class TemplateResolver extends \ICanBoogie\Object
 				$pathname = \ICanBoogie\DOCUMENT_ROOT . 'protected/all/templates/views/' . \ICanBoogie\normalize($descriptor[Module::T_ID]) . '--' . $template;
 				$templates[] = $pathname;
 
+				$pathname = $descriptor[Module::T_PATH] . 'templates/' . $template;
+				$templates[] = $pathname;
+
 				$pathname = $descriptor[Module::T_PATH] . 'views/' . $template;
 				$templates[] = $pathname;
 			}
