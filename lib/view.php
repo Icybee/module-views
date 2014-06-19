@@ -76,6 +76,12 @@ class View extends Object
 	 * @var int
 	 */
 	protected $renders;
+
+	protected function get_renders()
+	{
+		return $this->renders;
+	}
+
 	protected $options;
 
 	protected function get_options()
@@ -304,13 +310,13 @@ class View extends Object
 	/**
 	 * Fires {@link View\RescueEvent} using the specified payload.
 	 *
-	 * @param array $payload
+	 * @param string $html Reference to the rescued HTML string.
 	 *
 	 * @return mixed
 	 */
-	protected function fire_render_empty_inner_html(array $payload=array())
+	protected function fire_render_empty_inner_html(&$html)
 	{
-		return new View\RescueEvent($this, $payload);
+		return new View\RescueEvent($this, $html);
 	}
 
 	protected function init_range()
@@ -426,13 +432,7 @@ class View extends Object
 
 				$html = (string) $this->render_empty_inner_html();
 
-				$this->fire_render_empty_inner_html
-				(
-					array
-					(
-						'html' => &$html
-					)
-				);
+				$this->fire_render_empty_inner_html($html);
 
 				return $html;
 			}
@@ -750,8 +750,10 @@ class RescueEvent extends \ICanBoogie\Event
 	 */
 	public $html;
 
-	public function __construct(\Icybee\Modules\Views\View $target, array $payload)
+	public function __construct(\Icybee\Modules\Views\View $target, &$html)
 	{
-		parent::__construct($target, 'rescue', $payload);
+		$this->html = &$html;
+
+		parent::__construct($target, 'rescue');
 	}
 }
