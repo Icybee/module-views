@@ -254,57 +254,59 @@ class View extends Object
 	{
 		global $core;
 
-		$html = null;
-		$default = I18n\t('The view %name is empty.', array('%name' => $this->id));
+		$default = I18n\t('The view %name is empty.', [ '%name' => $this->id ]);
 		$type = $this->type;
-		$module = $this->module;
-		$module_flat_id = $module->flat_id;
+		$module_flat_id = $this->module->flat_id;
 
-		if (isset($view['on_empty']))
+		$placeholder = $core->site->metas["$module_flat_id.{$this->type}.placeholder"];
+
+		if ($placeholder)
 		{
-			$html = call_user_func($view['on_empty'], $this);
-		}
-		else if ($module)
-		{
-			$placeholder = $core->site->metas[$module_flat_id . ".{$this->type}.placeholder"];
-
-			if (!$placeholder)
-			{
-				$placeholder = $core->site->metas[$module_flat_id . '.placeholder'];
-			}
-
-			if ($placeholder)
-			{
-				$html = $placeholder;
-			}
-			else
-			{
-				$default = 'No record found.';
-			}
-
-			$default .= I18n\t
-			(
-				' <ul><li>The placeholder %placeholder was tried, but it does not exists.</li><li>The %message was tried, but it does not exists.</li></ul>', array
-				(
-					'placeholder' => "$module_flat_id.$type.placeholder",
-					'message' => "$module_flat_id.$type.empty_view"
-				)
-			);
+			return $placeholder;
 		}
 
-		if (!$html)
-		{
-			$html = I18n\t('empty_view', array(), array('scope' => $module_flat_id . '.' . $type, 'default' => $default));
+		$placeholder = $core->site->metas["$module_flat_id.placeholder"];
 
-			/*
-			if ($html)
-			{
-				$html = '<div class="alert">' . $html . '</div>';
-			}
-			*/
+		if ($placeholder)
+		{
+			return $placeholder;
 		}
 
-		return $html;
+		$placeholder = I18n\t('empty_view', [], [
+
+			'scope' => "$module_flat_id.$type",
+			'default' => null
+
+		]);
+
+		if ($placeholder)
+		{
+			return $placeholder;
+		}
+
+		$class = get_class($this);
+
+		$default = <<<EOT
+<div class="alert undissmisable">
+	<p>The view is empty, no record was found.</p>
+
+	<ul>
+		<li>The registry value <q>$module_flat_id.$type.placeholder</q> was tried, but it does not exists.</li>
+		<li>The registry value <q>$module_flat_id.placeholder</q> was tried, but it does not exists.</li>
+		<li>The I18n string "empty_view" was tried with the scope "$module_flat_id.$type", but is not defined.</li>
+	</ul>
+
+	<p>You can override this alert message by defining one of these registry values or by
+	listening to the <code>$class::rescue</code> event.</p>
+</div>
+EOT;
+
+		return I18n\t('empty_view', [], [
+
+			'scope' => "$module_flat_id.$type",
+			'default' => $default
+
+		]);
 	}
 
 	/**
