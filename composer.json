@@ -20,7 +20,7 @@
 	"require": {
 		"php": ">=5.4.0",
 		"icanboogie/module-installer": "*",
-		"icanboogie/activerecord-criterion": "*"
+		"icanboogie/facets": "*"
 	},
 	"autoload": {
 		"classmap": [ "lib" ]

@@ -35,21 +35,24 @@ use Icybee\Modules\Views\View\RenderEvent;
  *
  * @property-read string $id The identifier of the view.
  * @property-read mixed $data The data provided by the view's provider.
+ * @property-read array $default_conditions Default conditions.
+ * @property-read array $user_conditions User conditions, overwriting default conditions.
+ * @property-read array $important_conditions Important conditions, overwriting user conditions.
+ * @property-read array $conditions Conditions resolved from the _default_, _user_, and _important_ conditions.
  */
 class View extends Object
 {
 	const ACCESS_CALLBACK = 'access_callback';
 	const ASSETS = 'assets';
 	const CLASSNAME = 'class';
+	const CONDITIONS = 'conditions';
+	const DEFAULT_CONDITIONS = 'default_conditions';
 	const PROVIDER = 'provider';
 	const RENDERS = 'renders';
 	const RENDERS_ONE = 1;
 	const RENDERS_MANY = 2;
 	const RENDERS_OTHER = 3;
 	const TITLE = 'title';
-
-	// FIXME-20121226: defined the conditions handled by the provider of the view, particuliarly
-	// required ones.
 
 	protected $id;
 
@@ -63,7 +66,7 @@ class View extends Object
 	 *
 	 * - RENDERS_ONE: Renders a record.
 	 *
-	 * - RENDERS_MANY: Renders an array of records. A 'range' value is added to the rendering
+	 * - RENDERS_MANY: Renders a collection of records. A 'range' value is added to the rendering
 	 * context the following properties:
 	 *     - (int) limit: The maximum number of record to render.
 	 *     - (int) page: The starting page.
@@ -122,7 +125,12 @@ class View extends Object
 	{
 		unset($this->module);
 
-		$this->options = $options;
+		$this->options = $options + [
+
+			self::CONDITIONS => [],
+			self::DEFAULT_CONDITIONS => []
+
+		];
 
 		$this->id = $id;
 		$this->type = $options['type'];
@@ -133,6 +141,81 @@ class View extends Object
 		$this->document = $document;
 		$this->page = $page;
 		$this->template = $template;
+	}
+
+	/**
+	 * Return the default conditions.
+	 *
+	 * @return array
+	 */
+	protected function get_default_conditions()
+	{
+		if ($this->renders == self::RENDERS_ONE)
+		{
+			$limit = 1;
+		}
+		else
+		{
+			$limit = $this->page->site->metas[$this->module->flat_id . '.limits.' . $this->type] ?: null;
+		}
+
+		return $this->options[self::DEFAULT_CONDITIONS] + [
+
+			'page' => 0,
+			'limit' => $limit
+
+		];
+	}
+
+	/**
+	 * Return user conditions.
+	 *
+	 * @return array
+	 */
+	protected function get_user_conditions()
+	{
+		// FIXME-20140706: User conditions should be provider to us
+		return $this->page->url_variables + $_GET;
+	}
+
+	/**
+	 * Return important conditions.
+	 *
+	 * @return array
+	 */
+	protected function get_important_conditions()
+	{
+		return $this->options[self::CONDITIONS];
+	}
+
+	/**
+	 * Return the conditions resolved from the default conditions, user conditions and important
+	 * conditions.
+	 *
+	 * User conditions overwrite default conditions, and important conditions overwrite user
+	 * conditions.
+	 *
+	 * @return array
+	 */
+	protected function get_conditions()
+	{
+		return $this->important_conditions + $this->user_conditions + $this->default_conditions;
+	}
+
+	/**
+	 * Filter conditions.
+	 *
+	 * Important conditions are removed and default conditions are removed as well if their value
+	 * match.
+	 *
+	 * @param array $conditions
+	 */
+	protected function filter_conditions(array $conditions)
+	{
+		$conditions = array_diff_key($conditions, $this->important_conditions);
+		$conditions = array_diff_assoc($conditions, $this->default_conditions);
+
+		return $conditions;
 	}
 
 	/**
@@ -321,20 +404,16 @@ EOT;
 		return new View\RescueEvent($this, $html);
 	}
 
-	protected function init_range()
+	protected function init_range($count, array $conditions)
 	{
-		global $core;
+		return [
 
-		$limit_key = $this->module->flat_id . '.limits.' . $this->type;
-		$limit = $core->site->metas[$limit_key] ?: null;
+			'page' => $conditions['page'],
+			'limit' => $conditions['limit'],
+			'count' => $count,
+			'with' => $this->filter_conditions($conditions)
 
-		return array
-		(
-			'page' => empty($_GET['page']) ? 0 : (int) $_GET['page'],
-			'limit' => $limit,
-			'count' => null,
-			'with' => []
-		);
+		];
 	}
 
 	protected $provider;
@@ -367,8 +446,6 @@ EOT;
 
 		$rc =  $provider($conditions);
 
-		$this->range['count'] = $provider->count;
-
 		if ($this->renders == self::RENDERS_ONE)
 		{
 			return current($rc);
@@ -394,28 +471,18 @@ EOT;
 		$view = $this->options;
 		$bind = null;
 		$id = $this->id;
-		$page = $this->page;
 
 		if ($view['provider'])
 		{
 			list($constructor, $name) = explode('/', $id);
 
-			$this->range = $this->init_range();
-			$conditions = $page->url_variables + $_GET;
+			$conditions = $this->conditions;
 
-			$conditions['limit'] = $this->range['limit'];
-			$conditions['page'] = $this->range['page'];
-
-			// FIXME-20120628: we should be using Request here
 			$bind = $this->provide($this->options['provider'], $conditions);
+			$provider = $this->provider;
 
 			$this->data = $bind;
-			// TODO-20140505: exlude conditions extracted from the pathinfo
-			$this->range['with'] = $this->provider->conditions + [
-
-				'order' => $this->provider->order
-
-			];
+			$this->range = $this->init_range($provider->count, $provider->conditions + $conditions);
 
 			$engine->context['this'] = $bind;
 			$engine->context['range'] = $this->range;
@@ -466,6 +533,7 @@ EOT;
 		{
 			$extension = pathinfo($template_path, PATHINFO_EXTENSION);
 
+			$page = $this->page;
 			$module = $core->modules[$this->module_id];
 
 			$engine->context['core'] = $core;
