@@ -175,7 +175,7 @@ class View extends Object
 	protected function get_user_conditions()
 	{
 		// FIXME-20140706: User conditions should be provider to us
-		return $this->page->url_variables + $_GET;
+		return $_GET;
 	}
 
 	/**
@@ -185,7 +185,7 @@ class View extends Object
 	 */
 	protected function get_important_conditions()
 	{
-		return $this->options[self::CONDITIONS];
+		return $this->page->url_variables + $this->options[self::CONDITIONS];
 	}
 
 	/**
