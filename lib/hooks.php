@@ -14,13 +14,11 @@ namespace Icybee\Modules\Views;
 use ICanBoogie\ActiveRecord;
 use ICanBoogie\Operation;
 use ICanBoogie\PropertyNotDefined;
-use ICanBoogie\Route;
-use ICanBoogie\Routing\Pattern as RoutingPattern;
+use ICanBoogie\Routing\Pattern;
 
 use Icybee\Modules\Cache\Collection as CacheCollection;
 use Icybee\Modules\Nodes\Node;
 use Icybee\Modules\Sites\Site;
-use ICanBoogie\Routing\Pattern;
 
 class Hooks
 {
@@ -253,7 +251,7 @@ class Hooks
 
 		$url_pattern = $target->url_pattern;
 
-		if (!RoutingPattern::is_pattern($url_pattern))
+		if (!Pattern::is_pattern($url_pattern))
 		{
 			return self::$view_url_cache[$view_id] = $target->url;
 		}
@@ -263,7 +261,7 @@ class Hooks
 			throw new \Exception(\ICanBoogie\format("Route %route requires args to be formatted.", [ 'route' => $url_pattern ]));
 		}
 
-		$pattern = RoutingPattern::from($url_pattern);
+		$pattern = Pattern::from($url_pattern);
 
 		return $pattern->format($args);
 	}
