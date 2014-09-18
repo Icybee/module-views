@@ -11,10 +11,6 @@
 
 namespace Icybee\Modules\Views;
 
-use ICanBoogie\Exception;
-
-use Brickrouge\Element;
-
 /**
  * View editor.
  */

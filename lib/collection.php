@@ -11,7 +11,6 @@
 
 namespace Icybee\Modules\Views;
 
-use ICanBoogie\Exception;
 use ICanBoogie\OffsetNotWritable;
 
 /**

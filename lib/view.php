@@ -14,7 +14,6 @@ namespace Icybee\Modules\Views;
 use ICanBoogie\ActiveRecord\Model;
 use ICanBoogie\Debug;
 use ICanBoogie\Event;
-use ICanBoogie\Exception;
 use ICanBoogie\I18n;
 use ICanBoogie\HTTP\HTTPError;
 use ICanBoogie\Module;
@@ -460,7 +459,7 @@ EOT;
 	 * If the data provided implements {@link \Brickrouge\CSSClassNames}, the class names of the
 	 * record are added those of the view element.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return string The inner HTML of the view element.
 	 */
@@ -524,7 +523,7 @@ EOT;
 
 		if (!$template_path)
 		{
-			throw new Exception('Unable to resolve template for view %id', array('id' => $id));
+			throw new \Exception(\ICanBoogie\format('Unable to resolve template for view %id', array('id' => $id)));
 		}
 
 		I18n::push_scope($this->module->flat_id);
@@ -606,7 +605,7 @@ EOT;
 			}
 			else
 			{
-				throw new Exception('Unable to process file %file, unsupported type', array('file' => $template_path));
+				throw new \Exception(\ICanBoogie\format('Unable to process file %file, unsupported type', array('file' => $template_path)));
 			}
 		}
 		catch (\Exception $e)
@@ -717,7 +716,7 @@ EOT;
 	 *
 	 * The template location is resolved using a {@link TemplateResolver} instance.
 	 *
-	 * @throws Exception if the template location could not be resolved.
+	 * @throws \Exception if the template location could not be resolved.
 	 *
 	 * @return string
 	 */
@@ -728,14 +727,12 @@ EOT;
 
 		if (!$template)
 		{
-			throw new Exception
-			(
-				'Unable to resolve template for view %id. Tried: :list', array
-				(
-					'id' => $this->id,
-					':list' => implode("\n<br />", $resolver->templates)
-				)
-			);
+			throw new \Exception(\ICanBoogie\format('Unable to resolve template for view %id. Tried: :list', [
+
+				'id' => $this->id,
+				':list' => implode("\n<br />", $resolver->templates)
+
+			]));
 		}
 
 		return $template;
