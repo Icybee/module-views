@@ -265,7 +265,7 @@ class View extends Object
 	{
 		$context['pagination'] = '';
 
-		if (isset($context['range']['limit']) && isset($context['range']['count']))
+		if (isset($context['range']) && isset($context['range']['limit']) && isset($context['range']['count']))
 		{
 			$range = $context['range'];
 
