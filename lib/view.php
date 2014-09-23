@@ -369,7 +369,7 @@ class View extends Object
 		$class = get_class($this);
 
 		$default = <<<EOT
-<div class="alert undissmisable">
+<div class="alert undismissable">
 	<p>The view is empty, no record was found.</p>
 
 	<ul>
