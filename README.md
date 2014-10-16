@@ -1,4 +1,4 @@
-# Views
+# Views [![Build Status](https://travis-ci.org/Icybee/module-views.svg?branch=2.1)](https://travis-ci.org/Icybee/module-views)
 
 The Views module (`views`) allows dynamic data from modules to be displayed in content zones.
 
@@ -13,52 +13,16 @@ detail of a record.
 
 ## Events
 
-### Icybee\Modules\Views\Collection\CollectEvent
-
-Fired after the views defined by the enabled modules have been collected. Allows third parties to
-alter the collection.
 
 
 
-### Icybee\Modules\Views\ActiveRecordProvider\BeforeAlterConditionsEvent
 
-Fired before `alter_conditions` is invoked.
+### Views were collected
 
+The `Icybee\Modules\Views\Collection::collect` event of class [Collection\CollectEvent][] is fired
+after the views defined by the enabled modules have been collected. Event hooks may used this event
+to alter the collection.
 
-
-### Icybee\Modules\Views\ActiveRecordProvider\AlterConditionsEvent
-
-Fired after `alter_conditions` was invoked.
-
-
-
-### Icybee\Modules\Views\ActiveRecordProvider\BeforeAlterQueryEvent
-
-Fired before `alter_query` is invoked.
-
-
-
-### Icybee\Modules\Views\ActiveRecordProvider\AlterQueryEvent
-
-Fired after `alter_query` was invoked.
-
-
-
-### Icybee\Modules\Views\ActiveRecordProvider\BeforeAlterContextEvent
-
-Fired before `alter_context` is invoked.
-
-
-
-### Icybee\Modules\Views\ActiveRecordProvider\AlterContextEvent
-
-Fired after `alter_context` was invoked.
-
-
-
-### Icybee\Modules\Views\ActiveRecordProvider\AlterResultEvent
-
-Fired after `extract_result` was invoked.
 
 
 
@@ -66,54 +30,75 @@ Fired after `extract_result` was invoked.
 ## Events callbacks
 
 
-### ICanBoogie\Modules\Pages\SaveOperation::process
+
+
+
+### `Icybee\Modules\Pages\SaveOperation::process`
 
 Updates the target page of a view.
 
 
 
 
+
 ## Prototype methods
 
-### ICanBoogie\ActiveRecord\Node::url
+
+
+
+
+### `Icybee\Modules\Nodes\Node::url`
 
 Returns the relative URL of a record for the specified view type.
 
 
 
-### ICanBoogie\ActiveRecord\Node::absolute_url
+
+
+### `Icybee\Modules\Nodes\Node::absolute_url`
 
 Returns the URL of a record for the specified view type.
 
 
 
-### ICanBoogie\ActiveRecord\Node::get_url
+
+
+### `Icybee\Modules\Nodes\Node::get_url`
 
 Returns the relative URL of a record.
 
 
 
-### ICanBoogie\ActiveRecord\Node::get_absolute_url
+
+
+### `Icybee\Modules\Node::get_absolute_url`
 
 Returns the URL of a record.
 
 
 
-### ICanBoogie\ActiveRecord\Site::resolve_view_target
+
+
+### `Icybee\Modules\Sites\Site::resolve_view_target`
 
 Returns the target page associated with a view.
 
 
 
-### ICanBoogie\ActiveRecord\Site::resolve_view_url
+
+
+### `Icybee\Modules\Sites\Site::resolve_view_url`
 
 Returns the URL of a view.
 
 
 
-### ICanBoogie\Core::get_views
+
+
+### `ICanBoogie\Core::get_views`
 
 Returns the view collection.
+
 
 
 
@@ -133,9 +118,14 @@ Displays a view.
 
 
 
+----------
+
+
+
+
 ## Requirement
 
-The package requires PHP 5.3 or later.
+The package requires PHP 5.4 or later.
 
 
 
@@ -181,7 +171,7 @@ directory can later be cleaned with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://travis-ci.org/Icybee/module-views.png?branch=master)](https://travis-ci.org/Icybee/module-views)
+[![Build Status](https://travis-ci.org/Icybee/module-views.svg?branch=2.1)](https://travis-ci.org/Icybee/module-views)
 
 
 
@@ -201,4 +191,10 @@ cleaned with the `make clean` command.
 
 ## License
 
-The module is licensed under the New BSD License - See the LICENSE file for details.
+The module is licensed under the New BSD License - See the [LICENSE](LICENSE) file for details.
+
+
+
+
+
+[Collection\CollectEvent]: http://icybee.org/docs/class-Icybee.Modules.Views.Collection.CollectEvent.html
