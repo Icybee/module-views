@@ -503,14 +503,16 @@ EOT;
 		$bind = null;
 		$id = $this->id;
 
-		if ($view['provider'])
+		$provider_classname = $this->resolve_provider_classname();
+
+		if ($provider_classname)
 		{
 			list($constructor, $name) = explode('/', $id);
 
 			$conditions = $this->conditions;
 			$this->alter_conditions($conditions);
 
-			$bind = $this->provide($this->options['provider'], $conditions);
+			$bind = $this->provide($provider_classname, $conditions);
 			$provider = $this->provider;
 
 			$this->data = $bind;
@@ -769,6 +771,59 @@ EOT;
 		}
 
 		return $template;
+	}
+
+	/**
+	 * Resolves the name of the class that should be used to instantiate the view.
+	 *
+	 * If `module` is specified in the view definition, the name is resolved according to the
+	 * module's hierarchy.
+	 *
+	 * @param array $definition
+	 *
+	 * @return string The class that should be used to instantiate the view.
+	 */
+	private function resolve_provider_classname()
+	{
+		global $core;
+
+		$options = $this->options;
+		$classname = empty($options[ViewOptions::PROVIDER_CLASSNAME]) ? null : $options[ViewOptions::PROVIDER_CLASSNAME];
+
+		if (!$classname)
+		{
+			return;
+		}
+
+		if (!empty($options[ViewOptions::MODULE]))
+		{
+			$resolved_classname = $core->modules->resolve_classname('ViewProvider', $options[ViewOptions::MODULE]);
+
+			if ($classname === ViewOptions::PROVIDER_CLASSNAME_AUTO)
+			{
+				if (!$resolved_classname)
+				{
+					throw new \Exception(\ICanBoogie\format("Unable to resolve view provider class name for view %id.", [
+
+						$this->id
+
+					]));
+				}
+
+				$classname = $resolved_classname;
+			}
+			else if ($classname && $classname === $resolved_classname)
+			{
+				$core->logger->debug(\ICanBoogie\format("The provider class %class can be resolve from the module, it should be left empty in the options: :options", [
+
+					'class' => $classname,
+					'options' => $options
+
+				]));
+			}
+		}
+
+		return $classname;
 	}
 
 	/**

@@ -15,10 +15,14 @@ namespace Icybee\Modules\Views;
 
 class ViewOptions
 {
+	const ASSETS = 'assets';
 	const CLASSNAME = 'class';
 	const MODULE = 'module';
+	const PROVIDER_CLASSNAME = 'provider';
+	const PROVIDER_CLASSNAME_AUTO = true;
 	const RENDERS = 'renders';
 	const RENDERS_ONE = 1;
 	const RENDERS_MANY = 2;
 	const RENDERS_OTHER = 3;
+	const TITLE = 'title';
 }
