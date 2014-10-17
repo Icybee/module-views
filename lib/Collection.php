@@ -136,8 +136,6 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 	/**
 	 * Checks if a view exists.
-	 *
-	 * @see ArrayAccess::offsetExists()
 	 */
 	public function offsetExists($offset)
 	{
@@ -146,8 +144,6 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 	/**
 	 * Returns the definition of a view.
-	 *
-	 * @see ArrayAccess::offsetGet()
 	 */
 	public function offsetGet($id)
 	{
@@ -178,46 +174,5 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 	public function getIterator()
 	{
 		return new \ArrayIterator($this->collection);
-	}
-}
-
-namespace Icybee\Modules\Views\Collection;
-
-/**
- * Event class for the `Icybee\Modules\Views\Collection::collect` event.
- *
- * Event hooks may use this event to alter the view collection.
- */
-class CollectEvent extends \ICanBoogie\Event
-{
-	/**
-	 * Reference to the collection to alter.
-	 *
-	 * @var array[string]array
-	 */
-	public $collection;
-
-	/**
-	 * The event is constructed with the type 'collect'.
-	 *
-	 * @param \Icybee\Modules\Views\Collection $target
-	 * @param array $collection Reference to the view collection.
-	 */
-	public function __construct(\Icybee\Modules\Views\Collection $target, &$collection)
-	{
-		$this->collection = &$collection;
-
-		parent::__construct($target, 'collect');
-	}
-}
-
-/**
- * Exception thrown when a view is not defined.
- */
-class ViewNotDefined extends \RuntimeException
-{
-	public function __construct($id, $code=500, \Exception $previous=null)
-	{
-		parent::__construct("View not defined: $id.", $code, $previous);
 	}
 }

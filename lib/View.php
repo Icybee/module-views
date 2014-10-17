@@ -13,6 +13,7 @@ namespace Icybee\Modules\Views;
 
 use ICanBoogie\ActiveRecord\FetcherInterface;
 use ICanBoogie\ActiveRecord\Model;
+use ICanBoogie\AuthenticationRequired;
 use ICanBoogie\Debug;
 use ICanBoogie\Event;
 use ICanBoogie\I18n;
@@ -464,6 +465,11 @@ EOT;
 		return $records;
 	}
 
+	/**
+	 * Alter the records provided by the provider.
+	 *
+	 * @param array $records
+	 */
 	protected function alter_records(array &$records)
 	{
 
@@ -693,7 +699,7 @@ EOT;
 
 		if (preg_match('#\.html$#', $this->page->template))
 		{
-			if (Debug::$mode == Debug::MODE_DEV)
+			if (Debug::is_dev())
 			{
 
 				$possible_templates = implode(PHP_EOL, $this->template_resolver->templates);
@@ -720,7 +726,7 @@ EOT;
 	/**
 	 * Returns the template resolver of the view.
 	 *
-	 * @return \Icybee\Modules\Views\TemplateResolver
+	 * @return TemplateResolver
 	 */
 	protected function lazy_get_template_resolver()
 	{
@@ -767,134 +773,9 @@ EOT;
 
 		if ($access_callback && !call_user_func($access_callback, $this))
 		{
-			throw new HTTPError
-			(
-				\ICanBoogie\format('The requested URL %uri requires authentication.', array
-				(
-					'%uri' => $_SERVER['REQUEST_URI']
-				)),
-
-				401
-			);
+			throw new AuthenticationRequired;
 		}
 
 		return true;
-	}
-}
-
-namespace Icybee\Modules\Views\View;
-
-/**
- * Event fired before the view is rendered.
- */
-class BeforeRenderEvent extends \ICanBoogie\Event
-{
-	public function __construct(\Icybee\Modules\Views\View $target, array $payload)
-	{
-		parent::__construct($target, 'render:before', $payload);
-	}
-}
-
-/**
- * Event fired after the view was rendered.
- */
-class RenderEvent extends \ICanBoogie\Event
-{
-	/**
-	 * Reference to the inner HTML of the view.
-	 *
-	 * @var string
-	 */
-	public $html;
-
-	/**
-	 * Create an event of type `render`.
-	 *
-	 * @param \Icybee\Modules\Views\View $target
-	 * @param string $html Reference to the inner HTML of the view.
-	 */
-	public function __construct(\Icybee\Modules\Views\View $target, &$html)
-	{
-		$this->html = &$html;
-
-		parent::__construct($target, 'render');
-	}
-}
-
-/**
- * Event fired when the view inner HTML is empty.
- */
-class RescueEvent extends \ICanBoogie\Event
-{
-	/**
-	 * Reference to the rescued HTML.
-	 *
-	 * @var string
-	 */
-	public $html;
-
-	public function __construct(\Icybee\Modules\Views\View $target, &$html)
-	{
-		$this->html = &$html;
-
-		parent::__construct($target, 'rescue');
-	}
-}
-
-/**
- * Event class for the `Icybee\Modules\Views\View::alter_records:before` event.
- *
- * Event hooks may use this event to alter the records provided to the view, before its
- * `alter_records` method is invoked.
- */
-class BeforeAlterRecordsEvent extends \ICanBoogie\Event
-{
-	/**
-	 * Reference to the records.
-	 *
-	 * @var array
-	 */
-	public $records;
-
-	/**
-	 * The event is constructed with the type `alter_records:before`.
-	 *
-	 * @param \Icybee\Modules\Views\View $target
-	 * @param array $records Reference to the records.
-	 */
-	public function __construct(\Icybee\Modules\Views\View $target, &$records)
-	{
-		$this->records = &$records;
-
-		parent::__construct($target, 'alter_records:before');
-	}
-}
-
-/**
- * Event class for the `Icybee\Modules\Views\View::alter_records` event.
- *
- * Event hooks may use this event to alter the records provided to the view, after its
- * `alter_records` method was invoked.
- */
-class AlterRecordsEvent extends \ICanBoogie\Event
-{
-	/**
-	 * Reference to the records.
-	 *
-	 * @var array
-	 */
-	public $records;
-
-	/**
-	 * The event is constructed with the type `alter_records`.
-	 *
-	 * @param \Icybee\Modules\Views\View $target
-	 * @param array $records Reference to the records.
-	 */
-	public function __construct(\Icybee\Modules\Views\View $target, &$records)
-	{
-		$this->records = &$records;
-
-		parent::__construct($target, 'alter_records');
 	}
 }

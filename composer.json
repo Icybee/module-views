@@ -23,6 +23,6 @@
 		"icanboogie/facets": "*"
 	},
 	"autoload": {
-		"classmap": [ "lib" ]
+		"psr-4": { "Icybee\\Modules\\Views\\": "lib" }
 	}
 }

@@ -18,12 +18,4 @@ class ViewOptions
 	const RENDERS_ONE = 1;
 	const RENDERS_MANY = 2;
 	const RENDERS_OTHER = 3;
-
-	public $access_callback;
-	public $assets;
-	public $class;
-	public $id;
-	public $provider;
-	public $renders;
-	public $title;
 }
