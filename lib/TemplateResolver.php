@@ -11,6 +11,8 @@
 
 namespace Icybee\Modules\Views;
 
+use ICanBoogie\Module\Descriptor;
+
 /**
  * @property-read array $templates Possible templates.
  */
@@ -76,17 +78,17 @@ class TemplateResolver extends \ICanBoogie\Object
 		{
 			foreach ($templates_base as $template)
 			{
-				$pathname = \ICanBoogie\DOCUMENT_ROOT . 'protected/all/templates/views/' . \ICanBoogie\normalize($descriptor[Module::T_ID]) . '--' . $template;
+				$pathname = \ICanBoogie\DOCUMENT_ROOT . 'protected/all/templates/views/' . \ICanBoogie\normalize($descriptor[Descriptor::ID]) . '--' . $template;
 				$templates[] = $pathname;
 
-				$pathname = $descriptor[Module::T_PATH] . 'templates/' . $template;
+				$pathname = $descriptor[Descriptor::PATH] . 'templates/' . $template;
 				$templates[] = $pathname;
 
-				$pathname = $descriptor[Module::T_PATH] . 'views/' . $template;
+				$pathname = $descriptor[Descriptor::PATH] . 'views/' . $template;
 				$templates[] = $pathname;
 			}
 
-			$descriptor = $descriptor[Module::T_EXTENDS] ? $descriptors[$descriptor[Module::T_EXTENDS]] : null;
+			$descriptor = $descriptor[Descriptor::INHERITS] ? $descriptors[$descriptor[Descriptor::INHERITS]] : null;
 		}
 
 		foreach ($templates_base as $template)
