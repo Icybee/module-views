@@ -258,6 +258,16 @@ class View extends Object
 	}
 
 	/**
+	 * Alter the conditions before they are passed to the provider.
+	 *
+	 * @param array $conditions
+	 */
+	protected function alter_conditions(array &$conditions)
+	{
+
+	}
+
+	/**
 	 * Alters template context.
 	 *
 	 * @param \BlueTihi\Context $context
@@ -498,6 +508,7 @@ EOT;
 			list($constructor, $name) = explode('/', $id);
 
 			$conditions = $this->conditions;
+			$this->alter_conditions($conditions);
 
 			$bind = $this->provide($this->options['provider'], $conditions);
 			$provider = $this->provider;
