@@ -96,9 +96,15 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 
 		$classname = empty($definition[ViewOptions::CLASSNAME]) ? null : $definition[ViewOptions::CLASSNAME];
 
-		if ($classname && !empty($definition[ViewOptions::MODULE]))
+		if (!empty($definition[ViewOptions::MODULE]))
 		{
-			if ($classname == $core->modules->resolve_classname('View', $definition[ViewOptions::MODULE]))
+			$resolved_classname = $core->modules->resolve_classname('View', $definition[ViewOptions::MODULE]);
+
+			if (!$classname)
+			{
+				$classname = $resolved_classname;
+			}
+			else if ($classname === $resolved_classname)
 			{
 				$core->logger->debug(\ICanBoogie\format("The view class %class can be resolve from the module, it should be left empty in the definition: :definition", [
 
