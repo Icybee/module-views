@@ -11,6 +11,7 @@
 
 namespace Icybee\Modules\Views;
 
+use ICanBoogie\ActiveRecord\FetcherInterface;
 use ICanBoogie\ActiveRecord\Model;
 use ICanBoogie\Debug;
 use ICanBoogie\Event;
@@ -26,8 +27,9 @@ use Brickrouge\Pager;
 use BlueTihi\Context;
 
 use Icybee\Modules\Nodes\Node;
-use ICanBoogie\ActiveRecord\FetcherInterface;
 use Icybee\Modules\Views\View\RenderEvent;
+use Icybee\Modules\Views\View\AlterRecordsEvent;
+use Icybee\Modules\Views\View\BeforeAlterRecordsEvent;
 
 /**
  * A view on provided data.
@@ -443,14 +445,28 @@ EOT;
 
 		$this->provider = $provider = new $provider($this->module->model);
 
-		$rc =  $provider($conditions);
+		$records =  $provider($conditions);
+
+		if ($records)
+		{
+			new BeforeAlterRecordsEvent($this, $records);
+
+			$this->alter_records($records);
+
+			new AlterRecordsEvent($this, $records);
+		}
 
 		if ($this->renders == self::RENDERS_ONE)
 		{
-			return current($rc);
+			return current($records);
 		}
 
-		return $rc;
+		return $records;
+	}
+
+	protected function alter_records(array &$records)
+	{
+
 	}
 
 	/**
@@ -822,5 +838,63 @@ class RescueEvent extends \ICanBoogie\Event
 		$this->html = &$html;
 
 		parent::__construct($target, 'rescue');
+	}
+}
+
+/**
+ * Event class for the `Icybee\Modules\Views\View::alter_records:before` event.
+ *
+ * Event hooks may use this event to alter the records provided to the view, before its
+ * `alter_records` method is invoked.
+ */
+class BeforeAlterRecordsEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the records.
+	 *
+	 * @var array
+	 */
+	public $records;
+
+	/**
+	 * The event is constructed with the type `alter_records:before`.
+	 *
+	 * @param \Icybee\Modules\Views\View $target
+	 * @param array $records Reference to the records.
+	 */
+	public function __construct(\Icybee\Modules\Views\View $target, &$records)
+	{
+		$this->records = &$records;
+
+		parent::__construct($target, 'alter_records:before');
+	}
+}
+
+/**
+ * Event class for the `Icybee\Modules\Views\View::alter_records` event.
+ *
+ * Event hooks may use this event to alter the records provided to the view, after its
+ * `alter_records` method was invoked.
+ */
+class AlterRecordsEvent extends \ICanBoogie\Event
+{
+	/**
+	 * Reference to the records.
+	 *
+	 * @var array
+	 */
+	public $records;
+
+	/**
+	 * The event is constructed with the type `alter_records`.
+	 *
+	 * @param \Icybee\Modules\Views\View $target
+	 * @param array $records Reference to the records.
+	 */
+	public function __construct(\Icybee\Modules\Views\View $target, &$records)
+	{
+		$this->records = &$records;
+
+		parent::__construct($target, 'alter_records');
 	}
 }

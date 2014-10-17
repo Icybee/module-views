@@ -27,6 +27,18 @@ to alter the collection.
 
 
 
+### Records fetched by the provided are altered
+
+The `Icybee\Modules\Views\View::alter_records:before` event of class [View\BeforeAlterRecords][]
+is fired before the records fetched by the provider are altered by the `alter_records` method
+of the view. The `Icybee\Modules\Views\View::alter_records` event of class [View\AlterRecords][]
+is fired after the `alter_records` method was called. Event hooks may use these events to alter the
+records.
+
+
+
+
+
 ## Events callbacks
 
 
@@ -198,3 +210,5 @@ The module is licensed under the New BSD License - See the [LICENSE](LICENSE) fi
 
 
 [Collection\CollectEvent]: http://icybee.org/docs/class-Icybee.Modules.Views.Collection.CollectEvent.html
+[View\AlterRecords]: http://icybee.org/docs/class-Icybee.Modules.Views.View.AlterRecords.html
+[View\BeforeAlterRecords]: http://icybee.org/docs/class-Icybee.Modules.Views.View.BeforeAlterRecords.html
