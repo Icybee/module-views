@@ -814,7 +814,7 @@ EOT;
 			}
 			else if ($classname && $classname === $resolved_classname)
 			{
-				$core->logger->debug(\ICanBoogie\format("The provider class %class can be resolve from the module, it should be left empty in the options: :options", [
+				$core->logger->debug(\ICanBoogie\format("The provider class %class can be resolved from the module, it is recommended to PROVIDER_CLASSNAME_AUTO in the options: :options", [
 
 					'class' => $classname,
 					'options' => $options
