@@ -44,16 +44,49 @@ use Icybee\Modules\Views\View\BeforeAlterRecordsEvent;
  */
 class View extends Object
 {
+	/**
+	 * @deprecated
+	 */
 	const ACCESS_CALLBACK = 'access_callback';
+	/**
+	 * @deprecated
+	 */
 	const ASSETS = 'assets';
+	/**
+	 * @deprecated
+	 */
 	const CLASSNAME = 'class';
+	/**
+	 * @deprecated
+	 */
 	const CONDITIONS = 'conditions';
+	/**
+	 * @deprecated
+	 */
 	const DEFAULT_CONDITIONS = 'default_conditions';
+	/**
+	 * @deprecated
+	 */
 	const PROVIDER = 'provider';
+	/**
+	 * @deprecated
+	 */
 	const RENDERS = 'renders';
+	/**
+	 * @deprecated
+	 */
 	const RENDERS_ONE = 1;
+	/**
+	 * @deprecated
+	 */
 	const RENDERS_MANY = 2;
+	/**
+	 * @deprecated
+	 */
 	const RENDERS_OTHER = 3;
+	/**
+	 * @deprecated
+	 */
 	const TITLE = 'title';
 
 	protected $id;
@@ -66,17 +99,15 @@ class View extends Object
 	/**
 	 * The amount of data the view is rendering.
 	 *
-	 * - RENDERS_ONE: Renders a record.
+	 * - {@link ViewOptions::RENDERS_ONE}: Renders a record.
 	 *
-	 * - RENDERS_MANY: Renders a collection of records. A 'range' value is added to the rendering
+	 * - {@link ViewOptions::RENDERS_MANY}: Renders a collection of records. A 'range' value is added to the rendering
 	 * context the following properties:
 	 *     - (int) limit: The maximum number of record to render.
 	 *     - (int) page: The starting page.
 	 *     - (int) count: The total number of records. This value is to be entered by the provider.
 	 *
-	 * - RENDERS_OTHER: Renders an unknown amount of data.
-	 *
-	 * The property is read-only.
+	 * - {@link ViewOptions::RENDERS_OTHER}: Renders an unknown amount of data.
 	 *
 	 * @var int
 	 */
@@ -129,8 +160,8 @@ class View extends Object
 
 		$this->options = $options + [
 
-			self::CONDITIONS => [],
-			self::DEFAULT_CONDITIONS => []
+			ViewOptions::CONDITIONS => [],
+			ViewOptions::DEFAULT_CONDITIONS => []
 
 		];
 
@@ -152,7 +183,7 @@ class View extends Object
 	 */
 	protected function get_default_conditions()
 	{
-		if ($this->renders == self::RENDERS_ONE)
+		if ($this->renders == ViewOptions::RENDERS_ONE)
 		{
 			$limit = 1;
 		}
@@ -161,7 +192,7 @@ class View extends Object
 			$limit = $this->page->site->metas[$this->module->flat_id . '.limits.' . $this->type] ?: null;
 		}
 
-		return $this->options[self::DEFAULT_CONDITIONS] + [
+		return $this->options[ViewOptions::DEFAULT_CONDITIONS] + [
 
 			'page' => 0,
 			'limit' => $limit
@@ -187,7 +218,7 @@ class View extends Object
 	 */
 	protected function get_important_conditions()
 	{
-		return $this->page->url_variables + $this->options[self::CONDITIONS];
+		return $this->page->url_variables + $this->options[ViewOptions::CONDITIONS];
 	}
 
 	/**
@@ -449,7 +480,7 @@ EOT;
 			));
 		}
 
-		if ($this->renders == self::RENDERS_ONE)
+		if ($this->renders == ViewOptions::RENDERS_ONE)
 		{
 			$conditions['limit'] = 1;
 		}
@@ -467,7 +498,7 @@ EOT;
 			new AlterRecordsEvent($this, $records);
 		}
 
-		if ($this->renders == self::RENDERS_ONE)
+		if ($this->renders == ViewOptions::RENDERS_ONE)
 		{
 			return current($records);
 		}
@@ -835,7 +866,7 @@ EOT;
 	 */
 	protected function validate_access()
 	{
-		$access_callback = $this->options[self::ACCESS_CALLBACK];
+		$access_callback = $this->options[ViewOptions::ACCESS_CALLBACK];
 
 		if ($access_callback && !call_user_func($access_callback, $this))
 		{

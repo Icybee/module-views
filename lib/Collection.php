@@ -66,7 +66,8 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 	 * After the views defined by modules have been collected {@link Collection\CollectEvent} is
 	 * fired.
 	 *
-	 * @throws \UnexpectedValueException when the `title`, `type`, `module` or `renders`
+	 * @throws \UnexpectedValueException when the {@link ViewOptions::TITLE},
+	 * {@link ViewOptions::TYPE}, {@link ViewOptions::MODULE} or {@link ViewOptions::RENDERS}
 	 * properties are empty.
 	 *
 	 * @return array[string]array
@@ -74,6 +75,15 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 	protected function collect()
 	{
 		global $core;
+
+		static $required = [
+
+			ViewOptions::TITLE,
+			ViewOptions::TYPE,
+			ViewOptions::MODULE,
+			ViewOptions::RENDERS
+
+		];
 
 		$collection = array();
 		$modules = $core->modules;
@@ -91,11 +101,12 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 			foreach ($module_views as $type => $definition)
 			{
-				$definition += array
-				(
-					'module' => $id,
-					'type' => $type
-				);
+				$definition += [
+
+					ViewOptions::MODULE => $id,
+					ViewOptions::TYPE => $type
+
+				];
 
 				$collection[$id . '/' . $type] = $definition;
 			}
@@ -103,17 +114,16 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 		new Collection\CollectEvent($this, $collection);
 
-		$required = array('title', 'type', 'module', 'renders');
-
 		foreach ($collection as $id => &$definition)
 		{
-			$definition += array
-			(
-				'access_callback' => null,
-				'class' => null,
-				'provider' => null,
-				'title args' => array()
-			);
+			$definition += [
+
+				ViewOptions::ACCESS_CALLBACK => null,
+				ViewOptions::CLASSNAME => null,
+				ViewOptions::PROVIDER_CLASSNAME => null,
+				ViewOptions::TITLE_ARGS => []
+
+			];
 
 			foreach ($required as $property)
 			{

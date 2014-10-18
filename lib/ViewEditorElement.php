@@ -160,12 +160,12 @@ EOT;
 
 				foreach ($views as $id => $view)
 				{
-					if (!$view['title'])
+					if (!$view[ViewOptions::TITLE])
 					{
 						continue;
 					}
 
-					$title = I18n\t($view['title'], $view['title args']);
+					$title = I18n\t($view[ViewOptions::TITLE], $view[ViewOptions::TITLE_ARGS]);
 
 					$description = null;
 
