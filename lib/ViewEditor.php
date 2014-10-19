@@ -106,7 +106,7 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 			}
 			else if ($classname === $resolved_classname)
 			{
-				$core->logger->debug(\ICanBoogie\format("The view class %class can be resolve from the module, it should be left empty in the definition: :definition", [
+				$core->logger->debug(\ICanBoogie\format("The view class %class can be resolved from the module, it is recommended to avoid its definition: :definition", [
 
 					'class' => $classname,
 					'definition' => $definition
