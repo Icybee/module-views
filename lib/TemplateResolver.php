@@ -74,12 +74,18 @@ class TemplateResolver extends \ICanBoogie\Object
 		$descriptors = $core->modules->descriptors;
 		$descriptor = $descriptors[$this->module_id];
 
+		$autoconfig = \ICanBoogie\get_autoconfig();
+		$app_paths = array_reverse(\IcanBoogie\resolve_app_paths($autoconfig['root'] . DIRECTORY_SEPARATOR . 'protected'));
+
 		while ($descriptor)
 		{
 			foreach ($templates_base as $template)
 			{
-				$pathname = \ICanBoogie\DOCUMENT_ROOT . 'protected/all/templates/views/' . \ICanBoogie\normalize($descriptor[Descriptor::ID]) . '--' . $template;
-				$templates[] = $pathname;
+				foreach ($app_paths as $path)
+				{
+					$pathname = $path . 'templates/views/' . \ICanBoogie\normalize($descriptor[Descriptor::ID]) . '--' . $template;
+					$templates[] = $pathname;
+				}
 
 				$pathname = $descriptor[Descriptor::PATH] . 'templates/' . $template;
 				$templates[] = $pathname;
@@ -93,8 +99,11 @@ class TemplateResolver extends \ICanBoogie\Object
 
 		foreach ($templates_base as $template)
 		{
-			$pathname = \ICanBoogie\DOCUMENT_ROOT . 'protected/all/templates/views/' . $template;
-			$templates[] = $pathname;
+			foreach ($app_paths as $path)
+			{
+				$pathname = $path . 'templates/views/' . $template;
+				$templates[] = $pathname;
+			}
 		}
 
 		return $templates;
