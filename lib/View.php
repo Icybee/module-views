@@ -602,6 +602,7 @@ EOT;
 			$module = $core->modules[$this->module_id];
 
 			$engine->context['core'] = $core;
+			$engine->context['app'] = $core;
 			$engine->context['document'] = $core->document;
 			$engine->context['page'] = $page;
 			$engine->context['module'] = $module;
@@ -630,7 +631,8 @@ EOT;
 						(
 							'bind' => $bind,
 							'context' => &$engine->context,
-							'core' => $core,
+							'core' => $core, // @deprecated
+							'app'=> $core,
 							'document' => $core->document,
 							'page' => $page,
 							'module' => $module,
