@@ -47,15 +47,26 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 		return new ViewEditorElement($attributes);
 	}
 
+	/**
+	 * @param string $id
+	 * @param callable $engine
+	 * @param null $template
+	 *
+	 * @return mixed
+	 */
 	public function render($id, $engine=null, $template=null)
 	{
 		$definition = $this->app->views[$id];
 
-		$patron = \Patron\Engine::get_singleton();
+		if (!$engine)
+		{
+			$engine = \Patron\Engine::get_singleton();
+		}
+
 		$page = $this->resolve_view_page();
 		$class = $this->resolve_view_classname($definition);
 
-		$view = new $class($id, $definition, $patron, $this->app->document, $page);
+		$view = new $class($id, $definition, $engine, $this->app->document, $page);
 		$rc = $view();
 
 		return $template ? $engine($template, $rc) : $rc;

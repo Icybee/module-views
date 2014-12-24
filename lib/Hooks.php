@@ -83,7 +83,7 @@ class Hooks
 	 */
 
 	static private $pages_model;
-	static private $url_cache_by_siteid = array();
+	static private $url_cache_by_siteid = [];
 
 	/**
 	 * Returns the relative URL of a record for a view type.
@@ -155,81 +155,88 @@ class Hooks
 	}
 
 	/**
-	 * Return the URL type 'view' for the node.
+	 * Return the URL type 'view' for the record.
 	 *
-	 * @param Node $node
+	 * @param ActiveRecord $record
+	 *
+	 * @return
 	 */
-	static public function get_url(ActiveRecord $node)
+	static public function get_url(ActiveRecord $record)
 	{
-		return $node->url('view');
+		return $record->url('view');
 	}
 
 	/**
 	 * Return the absolute URL type for the node.
 	 *
-	 * @param Node $node
+	 * @param ActiveRecord $record
 	 * @param string $type The URL type.
+	 *
+	 * @return string
 	 */
-	static public function absolute_url(ActiveRecord $node, $type='view')
+	static public function absolute_url(ActiveRecord $record, $type='view')
 	{
 		$app = \ICanBoogie\app();
 
 		try
 		{
-			$site = $node->site ? $node->site : $app->site;
+			$site = $record->site ? $record->site : $app->site;
 		}
 		catch (PropertyNotDefined $e)
 		{
 			$site = $app->site;
 		}
 
-		return $site->url . substr($node->url($type), strlen($site->path));
+		return $site->url . substr($record->url($type), strlen($site->path));
 	}
 
 	/**
 	 * Return the _primary_ absolute URL for the node.
 	 *
-	 * @param Node $node
+	 * @param ActiveRecord $record
 	 *
 	 * @return string The primary absolute URL for the node.
 	 */
-	static public function get_absolute_url(Node $node)
+	static public function get_absolute_url(ActiveRecord $record)
 	{
-		return $node->absolute_url('view');
+		return $record->absolute_url('view');
 	}
 
-	static private $view_target_cache = array();
+	static private $view_target_cache = [];
 
 	/**
 	 * Returns the target page of a view.
 	 *
 	 * @param Site $site
-	 * @param string $viewid Identifier of the view.
+	 * @param string $view_id Identifier of the view.
 	 *
 	 * @return \Icybee\Modules\Pages\Page
 	 */
-	static public function resolve_view_target(Site $site, $viewid)
+	static public function resolve_view_target(Site $site, $view_id)
 	{
-		if (isset(self::$view_target_cache[$viewid]))
+		if (isset(self::$view_target_cache[$view_id]))
 		{
-			return self::$view_target_cache[$viewid];
+			return self::$view_target_cache[$view_id];
 		}
 
-		$targetid = $site->metas['views.targets.' . strtr($viewid, '.', '_')];
+		$target_id = $site->metas['views.targets.' . strtr($view_id, '.', '_')];
 
-		return self::$view_target_cache[$viewid] = $targetid ? \ICanBoogie\app()->models['pages'][$targetid] : false;
+		return self::$view_target_cache[$view_id] = $target_id
+			? \ICanBoogie\app()->models['pages'][$target_id]
+			: false;
 	}
 
-	static private $view_url_cache = array();
+	static private $view_url_cache = [];
 
 	/**
 	 * Returns the URL of a view.
 	 *
 	 * @param Site $site
 	 * @param string $view_id The identifier of the view.
-	 * @param mixed Optionnal arguments to format the URL, if the URL uses a pattern.
+	 * @param array|null $args The arguments to format the URL, if the URL uses a pattern.
 	 *
 	 * @return string
+	 * @throws \Exception
 	 */
 	static public function resolve_view_url(Site $site, $view_id, $args=null)
 	{
@@ -252,14 +259,7 @@ class Hooks
 			return self::$view_url_cache[$view_id] = $target->url;
 		}
 
-		if (!$args)
-		{
-			throw new \Exception(\ICanBoogie\format("Route %route requires args to be formatted.", [ 'route' => $url_pattern ]));
-		}
-
-		$pattern = Pattern::from($url_pattern);
-
-		return $pattern->format($args);
+		return Pattern::from($url_pattern)->format($args);
 	}
 
 	/*

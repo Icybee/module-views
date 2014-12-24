@@ -49,10 +49,9 @@ class TemplateResolver extends \ICanBoogie\Object
 	protected function lazy_get_templates()
 	{
 		$id = $this->id;
-		$type = $this->type;
-		$templates = array();
+		$templates = [];
 
-		$templates_base = array();
+		$templates_base = [];
 
 		$parts = explode('/', $id);
 		$module_id = array_shift($parts);
@@ -111,15 +110,13 @@ class TemplateResolver extends \ICanBoogie\Object
 	{
 		$templates = $this->templates;
 
-		$handled = array('php', 'html');
+		$handled = [ 'php', 'html' ];
 
 		foreach ($templates as $template)
 		{
 			foreach ($handled as $extension)
 			{
 				$pathname = $template . '.' . $extension;
-
-// 				\ICanBoogie\log("tryed: $pathname");
 
 				if (file_exists($pathname))
 				{

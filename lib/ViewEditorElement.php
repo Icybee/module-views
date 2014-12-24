@@ -32,13 +32,11 @@ class ViewEditorElement extends Element implements \Icybee\Modules\Editor\Editor
 
 	public function __construct(array $attributes)
 	{
-		parent::__construct
-		(
-			'div', $attributes + array
-			(
-				'class' => 'view-editor'
-			)
-		);
+		parent::__construct('div', $attributes + [
+
+			'class' => 'view-editor'
+
+		]);
 	}
 
 	public function render_inner_html()
@@ -48,13 +46,13 @@ class ViewEditorElement extends Element implements \Icybee\Modules\Editor\Editor
 		$selected_subcategory = null;
 		$selected_view = $this['value'];
 
-		$categories = array();
+		$categories = [];
 		$descriptors = $app->modules->descriptors;
 		$views = $app->views;
 
 		foreach ($views as $id => $view)
 		{
-			list($module_id, $type) = explode('/', $id) + array(1 => null);
+			list($module_id, $type) = explode('/', $id) + [ 1 => null ];
 
 			if (!isset($app->modules[$module_id]))
 			{
@@ -71,11 +69,11 @@ class ViewEditorElement extends Element implements \Icybee\Modules\Editor\Editor
 				if (isset($descriptor[Descriptor::CATEGORY]))
 				{
 					$category = $descriptors[$module_id][Descriptor::CATEGORY];
-					$category = I18n\t($category, array(), array('scope' => 'module_category'));
+					$category = I18n\t($category, [ ], [ 'scope' => 'module_category' ]);
 				}
 
 				$subcategory = $descriptor[Descriptor::TITLE];
-				$subcategory = I18n\t(strtr($module_id, '.', '_'), array(), array('scope' => 'module_title', 'default' => $subcategory));
+				$subcategory = I18n\t(strtr($module_id, '.', '_'), [ ], [ 'scope' => 'module_title', 'default' => $subcategory ]);
 			}
 
 			$categories[$category][$subcategory][$id] = $view;
@@ -172,13 +170,11 @@ EOT;
 
 						// FIXME-20101008: finish that ! it this usefull anyway ?
 
-						$description = strtr
-						(
-							$description, array
-							(
-								'#{url}' => $context . '/admin/'
-							)
-						);
+						$description = strtr($description, [
+
+							'#{url}' => $context . '/admin/'
+
+						]);
 					}
 
 					if ($id == $selected_view)
@@ -186,18 +182,16 @@ EOT;
 						$active = ' class="active"';
 					}
 
-					$items[] = new Element
-					(
-						Element::TYPE_RADIO, array
-						(
-							Element::LABEL => $title,
-							Element::DESCRIPTION => $description,
+					$items[] = new Element(Element::TYPE_RADIO, [
 
-							'name' => $name,
-							'value' => $id,
-							'checked' => ($id == $selected_view)
-						)
-					);
+						Element::LABEL => $title,
+						Element::DESCRIPTION => $description,
+
+						'name' => $name,
+						'value' => $id,
+						'checked' => ($id == $selected_view)
+
+					]);
 				}
 
 				$html .= "<ul$active><li>" . implode('</li><li>', $items) . '</li></ul>';

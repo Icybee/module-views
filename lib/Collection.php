@@ -19,7 +19,7 @@ use ICanBoogie\OffsetNotWritable;
  */
 class Collection implements \ArrayAccess, \IteratorAggregate
 {
-	private static $instance;
+	static private $instance;
 
 	/**
 	 * Returns a unique instance.
@@ -86,7 +86,7 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 		];
 
-		$collection = array();
+		$collection = [];
 
 		foreach ($modules->enabled_modules_descriptors as $id => $descriptor)
 		{
@@ -129,14 +129,12 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 			{
 				if (empty($definition[$property]))
 				{
-					throw new \UnexpectedValueException(\ICanBoogie\format
-					(
-						'%property is empty for the view %id.', array
-						(
-							'property' => $property,
-							'id' => $id
-						)
-					));
+					throw new \UnexpectedValueException(\ICanBoogie\format('%property is empty for the view %id.', [
+
+						'property' => $property,
+						'id' => $id
+
+					]));
 				}
 			}
 		}
@@ -146,14 +144,22 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 	/**
 	 * Checks if a view exists.
+	 *
+	 * @param string $id View identifier.
+	 *
+	 * @return bool
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($id)
 	{
-		return isset($this->collection[$offset]);
+		return isset($this->collection[$id]);
 	}
 
 	/**
 	 * Returns the definition of a view.
+	 *
+	 * @param string $id View identifier.
+	 *
+	 * @return array
 	 */
 	public function offsetGet($id)
 	{
@@ -168,17 +174,17 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 	/**
 	 * @throws OffsetNotWritable in attempt to set an offset.
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($id, $definition)
 	{
-		throw new OffsetNotWritable(array($offset, $this));
+		throw new OffsetNotWritable([ $id, $this ]);
 	}
 
 	/**
 	 * @throws OffsetNotWritable in attempt to unset an offset.
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($id)
 	{
-		throw new OffsetNotWritable(array($offset, $this));
+		throw new OffsetNotWritable([ $id, $this ]);
 	}
 
 	public function getIterator()

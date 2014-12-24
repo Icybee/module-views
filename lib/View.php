@@ -240,6 +240,8 @@ class View extends Object
 	 * match.
 	 *
 	 * @param array $conditions
+	 *
+	 * @return array
 	 */
 	protected function filter_conditions(array $conditions)
 	{
@@ -258,7 +260,7 @@ class View extends Object
 	{
 		$this->validate_access();
 
-		$assets = array('css' => array(), 'js' => array());
+		$assets = [ 'css' => [ ], 'js' => [ ] ];
 		$options = $this->options;
 
 		if (isset($options['assets']))
@@ -311,16 +313,14 @@ class View extends Object
 		{
 			$range = $context['range'];
 
-			$context['pagination'] = new Pager
-			(
-				'div', array
-				(
-					Pager::T_COUNT => $range['count'],
-					Pager::T_LIMIT => $range['limit'],
-					Pager::T_POSITION => $range['page'],
-					Pager::T_WITH => $range['with']
-				)
-			);
+			$context['pagination'] = new Pager('div', [
+
+				Pager::T_COUNT => $range['count'],
+				Pager::T_LIMIT => $range['limit'],
+				Pager::T_POSITION => $range['page'],
+				Pager::T_WITH => $range['with']
+
+			]);
 		}
 
 		$context['view'] = $this;
@@ -331,16 +331,16 @@ class View extends Object
 	/**
 	 * Adds view's assets to the document.
 	 *
-	 * @param WdDocument $document
+	 * @param Document $document
 	 * @param array $assets
 	 */
-	protected function add_assets(Document $document, array $assets=array())
+	protected function add_assets(Document $document, array $assets=[])
 	{
 		if (isset($assets['js']))
 		{
 			foreach ((array) $assets['js'] as $asset)
 			{
-				list($file, $priority) = (array) $asset + array(1 => 0);
+				list($file, $priority) = (array) $asset + [ 1 => 0 ];
 
 				$document->js->add($file, $priority);
 			}
@@ -350,7 +350,7 @@ class View extends Object
 		{
 			foreach ((array) $assets['css'] as $asset)
 			{
-				list($file, $priority) = (array) $asset + array(1 => 0);
+				list($file, $priority) = (array) $asset + [ 1 => 0 ];
 
 				$document->css->add($file, $priority);
 			}
@@ -364,7 +364,7 @@ class View extends Object
 	 *
 	 * @return mixed
 	 */
-	protected function fire_render_before(array $params=array())
+	protected function fire_render_before(array $params=[])
 	{
 		return new View\BeforeRenderEvent($this, $params);
 	}
@@ -377,7 +377,6 @@ class View extends Object
 	protected function render_empty_inner_html()
 	{
 		$site = $this->app->site;
-		$default = I18n\t('The view %name is empty.', [ '%name' => $this->id ]);
 		$type = $this->type;
 		$module_flat_id = $this->module->flat_id;
 
@@ -467,14 +466,12 @@ EOT;
 	{
 		if (!($provider instanceof FetcherInterface) && !class_exists($provider))
 		{
-			throw new \InvalidArgumentException(\ICanBoogie\format
-			(
-				'Provider class %class for view %id does not exists', array
-				(
-					'class' => $provider,
-					'id' => $this->id
-				)
-			));
+			throw new \InvalidArgumentException(\ICanBoogie\format('Provider class %class for view %id does not exists', [
+
+				'class' => $provider,
+				'id' => $this->id
+
+			]));
 		}
 
 		if ($this->renders == ViewOptions::RENDERS_ONE)
@@ -525,7 +522,6 @@ EOT;
 	 */
 	protected function render_inner_html($template_path, $engine)
 	{
-		$view = $this->options;
 		$bind = null;
 		$id = $this->id;
 
@@ -533,8 +529,6 @@ EOT;
 
 		if ($provider_classname)
 		{
-			list($constructor, $name) = explode('/', $id);
-
 			$conditions = $this->conditions;
 			$this->alter_conditions($conditions);
 
@@ -553,7 +547,7 @@ EOT;
 			}
 			else if ($bind instanceof Node)
 			{
-				new \BlueTihi\Context\LoadedNodesEvent($engine->context, array($bind));
+				new \BlueTihi\Context\LoadedNodesEvent($engine->context, [ $bind ]);
 			}
 			else if (!$bind)
 			{
@@ -584,7 +578,7 @@ EOT;
 
 		if (!$template_path)
 		{
-			throw new \Exception(\ICanBoogie\format('Unable to resolve template for view %id', array('id' => $id)));
+			throw new \Exception(\ICanBoogie\format('Unable to resolve template for view %id', [ 'id' => $id ]));
 		}
 
 		I18n::push_scope($this->module->flat_id);
@@ -622,20 +616,18 @@ EOT;
 						require $__file__;
 					};
 
-					$isolated_require
-					(
-						$template_path, array
-						(
-							'bind' => $bind,
-							'context' => &$engine->context,
-							'core' => $app, // @deprecated
-							'app'=> $app,
-							'document' => $app->document,
-							'page' => $page,
-							'module' => $module,
-							'view' => $this
-						)
-					);
+					$isolated_require($template_path, [
+
+						'bind' => $bind,
+						'context' => &$engine->context,
+						'core' => $app, // @deprecated
+						'app'=> $app,
+						'document' => $app->document,
+						'page' => $page,
+						'module' => $module,
+						'view' => $this
+
+					]);
 
 					$rc = ob_get_clean();
 				}
@@ -661,7 +653,7 @@ EOT;
 					throw new \Exception("Unable to read template from <q>$template_path</q>");
 				}
 
-				$rc = $engine($template, $bind, array('file' => $template_path));
+				$rc = $engine($template, $bind, [ 'file' => $template_path ]);
 
 				if ($rc === null)
 				{
@@ -670,7 +662,7 @@ EOT;
 			}
 			else
 			{
-				throw new \Exception(\ICanBoogie\format('Unable to process file %file, unsupported type', array('file' => $template_path)));
+				throw new \Exception(\ICanBoogie\format('Unable to process file %file, unsupported type', [ 'file' => $template_path ]));
 			}
 		}
 		catch (\Exception $e)
@@ -716,15 +708,13 @@ EOT;
 			$m = $m->parent;
 		}
 
-		$this->element = new Element
-		(
-			'div', array
-			(
-				'id' => 'view-' . \ICanBoogie\normalize($this->id),
-				'class' => trim("view view--$type $class"),
-				'data-constructor' => $this->module->id
-			)
-		);
+		$this->element = new Element('div', [
+
+			'id' => 'view-' . \ICanBoogie\normalize($this->id),
+			'class' => trim("view view--$type $class"),
+			'data-constructor' => $this->module->id
+
+		]);
 
 		$this->element = $this->alter_element($this->element);
 
@@ -809,9 +799,9 @@ EOT;
 	 * If `module` is specified in the view definition, the name is resolved according to the
 	 * module's hierarchy.
 	 *
-	 * @param array $definition
-	 *
 	 * @return string The class that should be used to instantiate the view.
+	 *
+	 * @throws \Exception
 	 */
 	private function resolve_provider_classname()
 	{
@@ -859,9 +849,9 @@ EOT;
 	/**
 	 * Checks if the view access is valid.
 	 *
-	 * @throws HTTPError when the view access requires authentication.
+	 * @return bool true
 	 *
-	 * @return boolean true
+	 * @throws AuthenticationRequired when the view access requires authentication.
 	 */
 	protected function validate_access()
 	{
