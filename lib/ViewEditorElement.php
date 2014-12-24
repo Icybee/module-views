@@ -43,21 +43,20 @@ class ViewEditorElement extends Element implements \Icybee\Modules\Editor\Editor
 
 	public function render_inner_html()
 	{
-		global $core;
-
+		$app = $this->app;
 		$selected_category = null;
 		$selected_subcategory = null;
 		$selected_view = $this['value'];
 
 		$categories = array();
-		$descriptors = $core->modules->descriptors;
-		$views = $core->views;
+		$descriptors = $app->modules->descriptors;
+		$views = $app->views;
 
 		foreach ($views as $id => $view)
 		{
 			list($module_id, $type) = explode('/', $id) + array(1 => null);
 
-			if (!isset($core->modules[$module_id]))
+			if (!isset($app->modules[$module_id]))
 			{
 				continue;
 			}
@@ -145,10 +144,8 @@ EOT;
 
 	protected function render_views(array $categories, $selected_category, $selected_subcategory, $selected_view)
 	{
-		global $core;
-
 		$html = '';
-		$context = $core->site->path;
+		$context = $this->app->site->path;
 		$name = $this['name'];
 
 		foreach ($categories as $category => $subcategories)

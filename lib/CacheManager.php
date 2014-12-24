@@ -22,11 +22,16 @@ class CacheManager implements \Icybee\Modules\Cache\CacheManagerInterface
 	public $state = false;
 	public $config_preview;
 
+	/**
+	 * @var \ICanBoogie\Vars
+	 */
+	private $vars;
+
 	public function __construct()
 	{
-		global $core;
-
-		$this->state = $core->config['cache views'];
+		$app = \ICanBoogie\app();
+		$this->vars = $app->vars;
+		$this->state = $app->config['cache views'];
 	}
 
 	/**
@@ -34,9 +39,7 @@ class CacheManager implements \Icybee\Modules\Cache\CacheManagerInterface
 	 */
 	public function clear()
 	{
-		global $core;
-
-		unset($core->vars['cached_views']);
+		unset($this->vars['cached_views']);
 
 		return true;
 	}
@@ -48,9 +51,7 @@ class CacheManager implements \Icybee\Modules\Cache\CacheManagerInterface
 	 */
 	public function disable()
 	{
-		global $core;
-
-		unset($core->vars['enable_views_cache']);
+		unset($this->vars['enable_views_cache']);
 
 		return true;
 	}
@@ -62,9 +63,7 @@ class CacheManager implements \Icybee\Modules\Cache\CacheManagerInterface
 	 */
 	public function enable()
 	{
-		global $core;
-
-		$core->vars['enable_views_cache'] = true;
+		$this->vars['enable_views_cache'] = true;
 
 		return true;
 	}

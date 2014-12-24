@@ -48,8 +48,6 @@ class TemplateResolver extends \ICanBoogie\Object
 
 	protected function lazy_get_templates()
 	{
-		global $core;
-
 		$id = $this->id;
 		$type = $this->type;
 		$templates = array();
@@ -71,7 +69,7 @@ class TemplateResolver extends \ICanBoogie\Object
 
 		$templates_base = array_unique($templates_base);
 
-		$descriptors = $core->modules->descriptors;
+		$descriptors = $this->app->modules->descriptors;
 		$descriptor = $descriptors[$this->module_id];
 
 		$autoconfig = \ICanBoogie\get_autoconfig();

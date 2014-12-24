@@ -16,6 +16,13 @@ namespace Icybee\Modules\Views;
  */
 class ViewEditor implements \Icybee\Modules\Editor\Editor
 {
+	private $app;
+
+	public function __construct()
+	{
+		$this->app = \ICanBoogie\app();
+	}
+
 	/**
 	 * Returns the content as is.
 	 */
@@ -42,15 +49,13 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 
 	public function render($id, $engine=null, $template=null)
 	{
-		global $core;
-
-		$definition = $core->views[$id];
+		$definition = $this->app->views[$id];
 
 		$patron = \Patron\Engine::get_singleton();
 		$page = $this->resolve_view_page();
 		$class = $this->resolve_view_classname($definition);
 
-		$view = new $class($id, $definition, $patron, $core->document, $page);
+		$view = new $class($id, $definition, $patron, $this->app->document, $page);
 		$rc = $view();
 
 		return $template ? $engine($template, $rc) : $rc;
@@ -63,21 +68,22 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 	 */
 	private function resolve_view_page()
 	{
-		global $core;
+		$request = $this->app->request;
 
-		if (isset($core->request->context->page))
+		if (isset($request->context->page))
 		{
-			return $core->request->context->page;
+			return $request->context->page;
 		}
 
-		$page = $core->site->resolve_view_target($id);
+		$site = $this->app->site;
+		$page = $site->resolve_view_target($id);
 
 		if ($page)
 		{
 			return $page;
 		}
 
-		return $core->site->home;
+		return $site->home;
 	}
 
 	/**
@@ -92,13 +98,12 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 	 */
 	private function resolve_view_classname(array $definition)
 	{
-		global $core;
-
+		$app = $this->app;
 		$classname = empty($definition[ViewOptions::CLASSNAME]) ? null : $definition[ViewOptions::CLASSNAME];
 
 		if (!empty($definition[ViewOptions::MODULE]))
 		{
-			$resolved_classname = $core->modules->resolve_classname('View', $definition[ViewOptions::MODULE]);
+			$resolved_classname = $app->modules->resolve_classname('View', $definition[ViewOptions::MODULE]);
 
 			if (!$classname)
 			{
@@ -106,7 +111,7 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 			}
 			else if ($classname === $resolved_classname)
 			{
-				$core->logger->debug(\ICanBoogie\format("The view class %class can be resolved from the module, it is recommended to avoid its definition: :definition", [
+				$app->logger->debug(\ICanBoogie\format("The view class %class can be resolved from the module, it is recommended to avoid its definition: :definition", [
 
 					'class' => $classname,
 					'definition' => $definition

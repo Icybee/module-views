@@ -34,8 +34,6 @@ class Hooks
 	 */
 	static public function on_page_save(Operation\ProcessEvent $event, \Icybee\Modules\Pages\SaveOperation $operation)
 	{
-		global $core;
-
 		$request = $event->request;
 		$contents = $request['contents'];
 		$editor_ids = $request['editors'];
@@ -63,7 +61,7 @@ class Hooks
 				{
 					$view_target_key = 'views.targets.' . strtr($content, '.', '_');
 
-					$core->site->metas[$view_target_key] = $nid;
+					\ICanBoogie\app()->site->metas[$view_target_key] = $nid;
 				}
 			}
 		}
@@ -97,7 +95,7 @@ class Hooks
 	 */
 	static public function url(ActiveRecord $target, $type='view')
 	{
-		global $core;
+		$app = \ICanBoogie\app();
 
 		if (self::$pages_model === false)
 		{
@@ -111,7 +109,7 @@ class Hooks
 		{
 			try
 			{
-				self::$pages_model = $core->models['pages'];
+				self::$pages_model = $app->models['pages'];
 			}
 			catch (\Exception $e)
 			{
@@ -123,7 +121,7 @@ class Hooks
 		$constructor = strtr($constructor, '.', '_');
 
 		$key = 'views.targets.' . $constructor . '/' . $type;
-		$site_id = !empty($target->siteid) ? $target->siteid : $core->site_id;
+		$site_id = !empty($target->siteid) ? $target->siteid : $app->site_id;
 
 		if (isset(self::$url_cache_by_siteid[$site_id][$key]))
 		{
@@ -136,7 +134,7 @@ class Hooks
 
 			if ($site_id)
 			{
-				$site = $core->models['sites'][$site_id];
+				$site = $app->models['sites'][$site_id];
 				$page_id = $site->metas[$key];
 
 				if ($page_id)
@@ -174,15 +172,15 @@ class Hooks
 	 */
 	static public function absolute_url(ActiveRecord $node, $type='view')
 	{
-		global $core;
+		$app = \ICanBoogie\app();
 
 		try
 		{
-			$site = $node->site ? $node->site : $core->site;
+			$site = $node->site ? $node->site : $app->site;
 		}
 		catch (PropertyNotDefined $e)
 		{
-			$site = $core->site;
+			$site = $app->site;
 		}
 
 		return $site->url . substr($node->url($type), strlen($site->path));
@@ -212,8 +210,6 @@ class Hooks
 	 */
 	static public function resolve_view_target(Site $site, $viewid)
 	{
-		global $core;
-
 		if (isset(self::$view_target_cache[$viewid]))
 		{
 			return self::$view_target_cache[$viewid];
@@ -221,7 +217,7 @@ class Hooks
 
 		$targetid = $site->metas['views.targets.' . strtr($viewid, '.', '_')];
 
-		return self::$view_target_cache[$viewid] = $targetid ? $core->models['pages'][$targetid] : false;
+		return self::$view_target_cache[$viewid] = $targetid ? \ICanBoogie\app()->models['pages'][$targetid] : false;
 	}
 
 	static private $view_url_cache = array();
@@ -281,8 +277,6 @@ class Hooks
 	 */
 	static public function markup_call_view(array $args, $engine, $template)
 	{
-		global $core;
-
-		return $core->editors['view']->render($args['name'], $engine, $template);
+		return \ICanBoogie\app()->editors['view']->render($args['name'], $engine, $template);
 	}
 }

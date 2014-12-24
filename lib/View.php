@@ -134,14 +134,12 @@ class View extends Object
 
 	protected function lazy_get_module()
 	{
-		global $core;
-
 		if (isset($this->module))
 		{
 			return $this->module;
 		}
 
-		return $core->modules[$this->module_id];
+		return $this->app->modules[$this->module_id];
 	}
 
 	private $data;
@@ -378,20 +376,19 @@ class View extends Object
 	 */
 	protected function render_empty_inner_html()
 	{
-		global $core;
-
+		$site = $this->app->site;
 		$default = I18n\t('The view %name is empty.', [ '%name' => $this->id ]);
 		$type = $this->type;
 		$module_flat_id = $this->module->flat_id;
 
-		$placeholder = $core->site->metas["$module_flat_id.{$this->type}.placeholder"];
+		$placeholder = $site->metas["$module_flat_id.{$this->type}.placeholder"];
 
 		if ($placeholder)
 		{
 			return $placeholder;
 		}
 
-		$placeholder = $core->site->metas["$module_flat_id.placeholder"];
+		$placeholder = $site->metas["$module_flat_id.placeholder"];
 
 		if ($placeholder)
 		{
@@ -528,8 +525,6 @@ EOT;
 	 */
 	protected function render_inner_html($template_path, $engine)
 	{
-		global $core;
-
 		$view = $this->options;
 		$bind = null;
 		$id = $this->id;
@@ -594,16 +589,18 @@ EOT;
 
 		I18n::push_scope($this->module->flat_id);
 
+		$app = $this->app;
+
 		try
 		{
 			$extension = pathinfo($template_path, PATHINFO_EXTENSION);
 
 			$page = $this->page;
-			$module = $core->modules[$this->module_id];
+			$module = $app->modules[$this->module_id];
 
-			$engine->context['core'] = $core;
-			$engine->context['app'] = $core;
-			$engine->context['document'] = $core->document;
+			$engine->context['core'] = $app;
+			$engine->context['app'] = $app;
+			$engine->context['document'] = $app->document;
 			$engine->context['page'] = $page;
 			$engine->context['module'] = $module;
 			$engine->context['view'] = $this;
@@ -631,9 +628,9 @@ EOT;
 						(
 							'bind' => $bind,
 							'context' => &$engine->context,
-							'core' => $core, // @deprecated
-							'app'=> $core,
-							'document' => $core->document,
+							'core' => $app, // @deprecated
+							'app'=> $app,
+							'document' => $app->document,
 							'page' => $page,
 							'module' => $module,
 							'view' => $this
@@ -818,8 +815,6 @@ EOT;
 	 */
 	private function resolve_provider_classname()
 	{
-		global $core;
-
 		$options = $this->options;
 		$classname = empty($options[ViewOptions::PROVIDER_CLASSNAME]) ? null : $options[ViewOptions::PROVIDER_CLASSNAME];
 
@@ -828,9 +823,11 @@ EOT;
 			return;
 		}
 
+		$app = $this->app;
+
 		if (!empty($options[ViewOptions::MODULE]))
 		{
-			$resolved_classname = $core->modules->resolve_classname('ViewProvider', $options[ViewOptions::MODULE]);
+			$resolved_classname = $app->modules->resolve_classname('ViewProvider', $options[ViewOptions::MODULE]);
 
 			if ($classname === ViewOptions::PROVIDER_CLASSNAME_AUTO)
 			{
@@ -847,7 +844,7 @@ EOT;
 			}
 			else if ($classname && $classname === $resolved_classname)
 			{
-				$core->logger->debug(\ICanBoogie\format("The provider class %class can be resolved from the module, it is recommended to PROVIDER_CLASSNAME_AUTO in the options: :options", [
+				$app->logger->debug(\ICanBoogie\format("The provider class %class can be resolved from the module, it is recommended to PROVIDER_CLASSNAME_AUTO in the options: :options", [
 
 					'class' => $classname,
 					'options' => $options

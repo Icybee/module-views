@@ -11,6 +11,7 @@
 
 namespace Icybee\Modules\Views;
 
+use ICanBoogie\Module\Modules;
 use ICanBoogie\OffsetNotWritable;
 
 /**
@@ -39,22 +40,22 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 	protected function __construct()
 	{
-		global $core;
+		$app = \ICanBoogie\app();
 
-		if ($core->config['cache views'])
+		if ($app->config['cache views'])
 		{
-			$collection = $core->vars['cached_views'];
+			$collection = $app->vars['cached_views'];
 
 			if (!$collection)
 			{
-				$collection = $this->collect();
+				$collection = $this->collect($app->modules);
 
-				$core->vars['cached_views'] = $collection;
+				$app->vars['cached_views'] = $collection;
 			}
 		}
 		else
 		{
-			$collection = $this->collect();
+			$collection = $this->collect($app->modules);
 		}
 
 		$this->collection = $collection;
@@ -66,16 +67,16 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 	 * After the views defined by modules have been collected {@link Collection\CollectEvent} is
 	 * fired.
 	 *
+	 * @param Modules $modules
+	 *
+	 * @return array[string]array
+	 *
 	 * @throws \UnexpectedValueException when the {@link ViewOptions::TITLE},
 	 * {@link ViewOptions::TYPE}, {@link ViewOptions::MODULE} or {@link ViewOptions::RENDERS}
 	 * properties are empty.
-	 *
-	 * @return array[string]array
 	 */
-	protected function collect()
+	protected function collect(Modules $modules)
 	{
-		global $core;
-
 		static $required = [
 
 			ViewOptions::TITLE,
@@ -86,7 +87,6 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 		];
 
 		$collection = array();
-		$modules = $core->modules;
 
 		foreach ($modules->enabled_modules_descriptors as $id => $descriptor)
 		{
