@@ -148,14 +148,8 @@ The package requires PHP 5.4 or later.
 The recommended way to install this package is through [Composer](http://getcomposer.org/).
 Create a `composer.json` file and run `php composer.phar install` command to install it:
 
-```json
-{
-	"minimum-stability": "dev",
-	"require":
-	{
-		"icybee/module-views": "*"
-	}
-}
+```
+$ composer require icybee/module-views:dev-master
 ```
 
 Note: This module is part of the modules required by [Icybee](http://icybee.org).
@@ -169,7 +163,7 @@ Note: This module is part of the modules required by [Icybee](http://icybee.org)
 The package is [available on GitHub](https://github.com/Icybee/module-views), its repository can be
 cloned with the following command line:
 
-	$ git clone git://github.com/Icybee/module-views.git views
+	$ git clone https://github.com/Icybee/module-views views
 
 
 

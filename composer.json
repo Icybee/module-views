@@ -16,11 +16,10 @@
 		"issues": "https://github.com/Icybee/module-views/issues",
 		"source": "https://github.com/Icybee/module-views"
 	},
-	"minimum-stability": "dev",
 	"require": {
 		"php": ">=5.4.0",
-		"icanboogie/module-installer": "*",
-		"icanboogie/facets": "*"
+		"icanboogie/module-installer": "~1.2",
+		"icanboogie/facets": "dev-master"
 	},
 	"autoload": {
 		"psr-4": { "Icybee\\Modules\\Views\\": "lib" }

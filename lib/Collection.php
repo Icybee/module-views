@@ -11,7 +11,7 @@
 
 namespace Icybee\Modules\Views;
 
-use ICanBoogie\Module\Modules;
+use ICanBoogie\Module\ModuleCollection;
 use ICanBoogie\OffsetNotWritable;
 
 /**
@@ -67,7 +67,7 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 	 * After the views defined by modules have been collected {@link Collection\CollectEvent} is
 	 * fired.
 	 *
-	 * @param Modules $modules
+	 * @param ModuleCollection $modules
 	 *
 	 * @return array[string]array
 	 *
@@ -75,7 +75,7 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 	 * {@link ViewOptions::TYPE}, {@link ViewOptions::MODULE} or {@link ViewOptions::RENDERS}
 	 * properties are empty.
 	 */
-	protected function collect(Modules $modules)
+	protected function collect(ModuleCollection $modules)
 	{
 		static $required = [
 
