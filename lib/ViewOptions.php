@@ -19,14 +19,14 @@ final class ViewOptions
 	 * The callable returns `true` if the access is granted, `false` otherwise. It is recommended
 	 * to throw an appropriate exception should the access be refused.
 	 *
-	 * @var callable
+	 * @var string
 	 */
 	const ACCESS_CALLBACK = 'access_callback';
 
 	/**
 	 * Defines the CSS and JavaScript assets required by the view.
 	 *
-	 * @var array
+	 * @var string
 	 */
 	const ASSETS = 'assets';
 
@@ -43,21 +43,21 @@ final class ViewOptions
 	/**
 	 * Important conditions, which cannot be overridden by the user.
 	 *
-	 * @var array
+	 * @var string
 	 */
 	const CONDITIONS = 'conditions';
 
 	/**
 	 * Initial conditions for the provider, which can be overridden by the user.
 	 *
-	 * @var array
+	 * @var string
 	 */
 	const DEFAULT_CONDITIONS = 'default_conditions';
 
 	/**
 	 * Defines the module providing the view.
 	 *
-	 * @var string|\ICanBoogie\Module
+	 * @var string
 	 */
 	const MODULE = 'module';
 
@@ -80,7 +80,7 @@ final class ViewOptions
 	 * {@link RENDERS_ONE}, {@link RENDERS_MANY}, and {@link RENDERS_OTHER} when to number of
 	 * records is irrelevant.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	const RENDERS = 'renders';
 	const RENDERS_ONE = 1;
@@ -97,7 +97,7 @@ final class ViewOptions
 	/**
 	 * Defines the arguments used to format the title.
 	 *
-	 * @var array
+	 * @var string
 	 */
 	const TITLE_ARGS = 'title args';
 

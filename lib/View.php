@@ -11,13 +11,12 @@
 
 namespace Icybee\Modules\Views;
 
-use ICanBoogie\ActiveRecord\FetcherInterface;
-use ICanBoogie\ActiveRecord\Model;
+use Brickrouge\ElementIsEmpty;
+use ICanBoogie\Facets\FetcherInterface;
 use ICanBoogie\AuthenticationRequired;
 use ICanBoogie\Debug;
 use ICanBoogie\Event;
 use ICanBoogie\I18n;
-use ICanBoogie\HTTP\HTTPError;
 use ICanBoogie\Module;
 use ICanBoogie\Object;
 
@@ -27,6 +26,7 @@ use Brickrouge\Pager;
 
 use BlueTihi\Context;
 
+use ICanBoogie\Render\TemplateNotFound;
 use Icybee\Modules\Nodes\Node;
 use Icybee\Modules\Views\View\RenderEvent;
 use Icybee\Modules\Views\View\AlterRecordsEvent;
@@ -35,6 +35,7 @@ use Icybee\Modules\Views\View\BeforeAlterRecordsEvent;
 /**
  * A view on provided data.
  *
+ * @property-read \ICanBoogie\Core $app
  * @property-read string $id The identifier of the view.
  * @property-read mixed $data The data provided by the view's provider.
  * @property-read array $default_conditions Default conditions.
@@ -152,7 +153,10 @@ class View extends Object
 	public $module_id;
 	public $type;
 
-	public function __construct($id, array $options, $engine, $document, $page, $template=null)
+	private $template_tries = [];
+	private $template_pathname;
+
+	public function __construct($id, array $options, $engine, $document, $page, $template = null)
 	{
 		unset($this->module);
 
@@ -260,7 +264,7 @@ class View extends Object
 	{
 		$this->validate_access();
 
-		$assets = [ 'css' => [ ], 'js' => [ ] ];
+		$assets = [ 'css' => [], 'js' => [] ];
 		$options = $this->options;
 
 		if (isset($options['assets']))
@@ -282,7 +286,7 @@ class View extends Object
 
 			return $rc;
 		}
-		catch (\Brickrouge\ElementIsEmpty $e)
+		catch (ElementIsEmpty $e)
 		{
 			return '';
 		}
@@ -307,6 +311,7 @@ class View extends Object
 	 */
 	protected function alter_context(Context $context)
 	{
+		$context['this'] = $this->data;
 		$context['pagination'] = '';
 
 		if (isset($context['range']) && isset($context['range']['limit']) && isset($context['range']['count']))
@@ -334,7 +339,7 @@ class View extends Object
 	 * @param Document $document
 	 * @param array $assets
 	 */
-	protected function add_assets(Document $document, array $assets=[])
+	protected function add_assets(Document $document, array $assets = [])
 	{
 		if (isset($assets['js']))
 		{
@@ -364,7 +369,7 @@ class View extends Object
 	 *
 	 * @return mixed
 	 */
-	protected function fire_render_before(array $params=[])
+	protected function fire_render_before(array $params = [])
 	{
 		return new View\BeforeRenderEvent($this, $params);
 	}
@@ -516,154 +521,64 @@ EOT;
 	 * If the data provided implements {@link \Brickrouge\CSSClassNames}, the class names of the
 	 * record are added those of the view element.
 	 *
+	 * @param Context $context
+	 *
 	 * @throws \Exception
 	 *
 	 * @return string The inner HTML of the view element.
 	 */
-	protected function render_inner_html($template_path, $engine)
+	protected function render_inner_html(Context $context)
 	{
-		$bind = null;
-		$id = $this->id;
+		$this->data = $bind = $this->resolve_bind();
 
-		$provider_classname = $this->resolve_provider_classname();
-
-		if ($provider_classname)
+		if (!$bind && $this->renders != ViewOptions::RENDERS_OTHER)
 		{
-			$conditions = $this->conditions;
-			$this->alter_conditions($conditions);
+			$this->element->add_class('empty');
 
-			$bind = $this->provide($provider_classname, $conditions);
-			$provider = $this->provider;
+			$html = (string) $this->render_empty_inner_html();
 
-			$this->data = $bind;
-			$this->range = $this->init_range($provider->count, $provider->conditions + $conditions);
+			$this->fire_render_empty_inner_html($html);
 
-			$engine->context['this'] = $bind;
-			$engine->context['range'] = $this->range;
-
-			if (is_array($bind) && current($bind) instanceof Node)
-			{
-				new \BlueTihi\Context\LoadedNodesEvent($engine->context, $bind);
-			}
-			else if ($bind instanceof Node)
-			{
-				new \BlueTihi\Context\LoadedNodesEvent($engine->context, [ $bind ]);
-			}
-			else if (!$bind)
-			{
-				$this->element->add_class('empty');
-
-				$html = (string) $this->render_empty_inner_html();
-
-				$this->fire_render_empty_inner_html($html);
-
-				return $html;
-			}
-
-			#
-			# appending record's css class names to the view element's class.
-			#
-
-			if ($bind instanceof \Brickrouge\CSSClassNames)
-			{
-				$this->element['class'] .= ' ' . $bind->css_class;
-			}
+			return $html;
 		}
 
-		#
-		#
-		#
-
-		$rc = '';
-
-		if (!$template_path)
+		if (is_array($bind) && reset($bind) instanceof Node)
 		{
-			throw new \Exception(\ICanBoogie\format('Unable to resolve template for view %id', [ 'id' => $id ]));
+			new \BlueTihi\Context\LoadedNodesEvent($context, $bind);
 		}
+		elseif ($bind instanceof Node)
+		{
+			new \BlueTihi\Context\LoadedNodesEvent($context, [ $bind ]);
+		}
+		elseif ($bind instanceof \Brickrouge\CSSClassNames)
+		{
+			$this->element['class'] .= ' ' . $bind->css_class;
+		}
+
+		/* @var $template_resolver \ICanBoogie\Render\TemplateResolver */
+		$template_resolver = clone $this->app->template_resolver;
+		$engines = $this->app->template_engines;
+
+		$tries = [];
+		$this->template_tries = &$tries;
+		$template_pathname = $template_resolver->resolve($this->id, $engines->extensions, $tries);
+
+		if (!$template_pathname)
+		{
+			throw new TemplateNotFound("Unable to find template for $this->id.", $tries);
+		}
+
+		$this->template_pathname = $template_pathname;
 
 		I18n::push_scope($this->module->flat_id);
 
-		$app = $this->app;
-
 		try
 		{
-			$extension = pathinfo($template_path, PATHINFO_EXTENSION);
+			$html = $engines->render($template_pathname, $bind, $this->resolve_variables());
 
-			$page = $this->page;
-			$module = $app->modules[$this->module_id];
+			I18n::pop_scope();
 
-			$engine->context['core'] = $app;
-			$engine->context['app'] = $app;
-			$engine->context['document'] = $app->document;
-			$engine->context['page'] = $page;
-			$engine->context['module'] = $module;
-			$engine->context['view'] = $this;
-
-			$engine->context = $this->alter_context($engine->context);
-
-			if ('php' == $extension)
-			{
-				$rc = null;
-
-				ob_start();
-
-				try
-				{
-					$isolated_require = function ($__file__, $__exposed__)
-					{
-						extract($__exposed__);
-
-						require $__file__;
-					};
-
-					$isolated_require($template_path, [
-
-						'bind' => $bind,
-						'context' => &$engine->context,
-						'core' => $app, // @deprecated
-						'app'=> $app,
-						'document' => $app->document,
-						'page' => $page,
-						'module' => $module,
-						'view' => $this
-
-					]);
-
-					$rc = ob_get_clean();
-				}
-				catch (\ICanBoogie\Exception\Config $e)
-				{
-					$rc = '<div class="alert">' . $e->getMessage() . '</div>';
-
-					ob_clean();
-				}
-				catch (\Exception $e)
-				{
-					ob_clean();
-
-					throw $e;
-				}
-			}
-			else if ('html' == $extension)
-			{
-				$template = file_get_contents($template_path);
-
-				if ($template === false)
-				{
-					throw new \Exception("Unable to read template from <q>$template_path</q>");
-				}
-
-				$rc = $engine($template, $bind, [ 'file' => $template_path ]);
-
-				if ($rc === null)
-				{
-					var_dump($template_path, file_get_contents($template_path), $rc);
-				}
-			}
-			else
-			{
-				throw new \Exception(\ICanBoogie\format('Unable to process file %file, unsupported type', [ 'file' => $template_path ]));
-			}
+			return $html;
 		}
 		catch (\Exception $e)
 		{
@@ -671,10 +586,48 @@ EOT;
 
 			throw $e;
 		}
+	}
 
-		I18n::pop_scope();
+	protected function resolve_bind()
+	{
+		$provider_classname = $this->resolve_provider_classname();
 
-		return $rc;
+		if (!$provider_classname)
+		{
+			return null;
+		}
+
+		$conditions = $this->conditions;
+		$this->alter_conditions($conditions);
+
+		return $this->provide($provider_classname, $conditions);
+	}
+
+	protected function resolve_variables()
+	{
+		$variables = $this->alter_context($this->engine->context)->to_array();
+
+		unset($variables['this']);
+		unset($variables['self']);
+
+		$provider = $this->provider;
+
+		if ($provider)
+		{
+			$variables['range'] = $this->init_range($provider->count, $provider->conditions + $this->conditions);
+		}
+
+		$app = $this->app;
+
+		return $variables + [
+
+			'core' => $app,
+			'app' => $app,
+			'document' => $app->document,
+			'module' => $this->module,
+			'view' => $this
+
+		];
 	}
 
 	protected $element;
@@ -718,13 +671,9 @@ EOT;
 
 		$this->element = $this->alter_element($this->element);
 
-// 		\ICanBoogie\log("class: {$this->element->class}, type: $type, assets: " . \ICanBoogie\dump($this->options['assets']));
-
-		$template_path = $this->resolve_template_location();
-
 		#
 
-		$html = $o_html = $this->render_inner_html($template_path, $this->engine);
+		$html = $o_html = $this->render_inner_html($this->engine->context);
 
 		new RenderEvent($this, $html);
 
@@ -735,7 +684,7 @@ EOT;
 			if (Debug::is_dev())
 			{
 
-				$possible_templates = implode(PHP_EOL, $this->template_resolver->templates);
+				$possible_templates = implode(PHP_EOL, $this->template_tries);
 
 				$html = <<<EOT
 
@@ -749,48 +698,12 @@ EOT;
 			}
 
 			$this->element[Element::INNER_HTML] = $html;
+			$this->element['data-template-path'] = $this->template_pathname;
 
 			$html = (string) $this->element;
 		}
 
 		return $html;
-	}
-
-	/**
-	 * Returns the template resolver of the view.
-	 *
-	 * @return TemplateResolver
-	 */
-	protected function lazy_get_template_resolver()
-	{
-		return new TemplateResolver($this->id, $this->type, $this->module_id);
-	}
-
-	/**
-	 * Resolves the template location of the view.
-	 *
-	 * The template location is resolved using a {@link TemplateResolver} instance.
-	 *
-	 * @throws \Exception if the template location could not be resolved.
-	 *
-	 * @return string
-	 */
-	protected function resolve_template_location()
-	{
-		$resolver = $this->template_resolver;
-		$template = $resolver();
-
-		if (!$template)
-		{
-			throw new \Exception(\ICanBoogie\format('Unable to resolve template for view %id. Tried: :list', [
-
-				'id' => $this->id,
-				':list' => implode("\n<br />", $resolver->templates)
-
-			]));
-		}
-
-		return $template;
 	}
 
 	/**
@@ -810,7 +723,7 @@ EOT;
 
 		if (!$classname)
 		{
-			return;
+			return null;
 		}
 
 		$app = $this->app;
