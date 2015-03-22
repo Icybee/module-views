@@ -19,7 +19,7 @@
 	"require": {
 		"php": ">=5.4.0",
 		"icanboogie/module-installer": "~1.2.3",
-		"icanboogie/facets": "~0.2.0"
+		"icanboogie/facets": "~0.3.0"
 	},
 	"autoload": {
 		"psr-4": { "Icybee\\Modules\\Views\\": "lib" }

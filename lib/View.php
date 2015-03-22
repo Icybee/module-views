@@ -12,10 +12,12 @@
 namespace Icybee\Modules\Views;
 
 use Brickrouge\ElementIsEmpty;
+use Brickrouge\Pagination;
 use ICanBoogie\Facets\FetcherInterface;
 use ICanBoogie\AuthenticationRequired;
 use ICanBoogie\Debug;
 use ICanBoogie\Event;
+use ICanBoogie\Facets\RecordCollection;
 use ICanBoogie\I18n;
 use ICanBoogie\Module;
 use ICanBoogie\Object;
@@ -303,34 +305,59 @@ class View extends Object
 	}
 
 	/**
-	 * Alters template context.
+	 * Alters context.
 	 *
-	 * @param \BlueTihi\Context $context
+	 * @param Context $context
 	 *
-	 * @return \BlueTihi\Context
+	 * @return Context
 	 */
 	protected function alter_context(Context $context)
 	{
-		$context['this'] = $this->data;
+		$data = $this->data;
+		$context['this'] = $data;
+		$context['view'] = $this;
 		$context['pagination'] = '';
 
-		if (isset($context['range']) && isset($context['range']['limit']) && isset($context['range']['count']))
+		if ($data instanceof RecordCollection)
 		{
-			$range = $context['range'];
-
-			$context['pagination'] = new Pager('div', [
-
-				Pager::T_COUNT => $range['count'],
-				Pager::T_LIMIT => $range['limit'],
-				Pager::T_POSITION => $range['page'],
-				Pager::T_WITH => $range['with']
-
-			]);
+			$this->alter_context_with_records($context, $data);
 		}
 
-		$context['view'] = $this;
-
 		return $context;
+	}
+
+	/**
+	 * Alters context with records.
+	 *
+	 * The methods adds the `range` and `pagination` properties.
+	 *
+	 * @param Context $context
+	 * @param RecordCollection $records
+	 */
+	protected function alter_context_with_records(Context $context, RecordCollection $records)
+	{
+		$count = $records->total_count;
+		$limit = $records->limit;
+		$page = $records->page;
+		$conditions = $this->filter_conditions($records->conditions);
+
+		$context['range'] = [
+
+			'count' => $count,
+			'limit' => $limit,
+			'page'=> $page,
+			'with' => $conditions
+
+		];
+
+		$context['pagination'] = new Pagination([
+
+			Pagination::COUNT => $count,
+			Pagination::LIMIT => $limit,
+			Pagination::POSITION => $page,
+			Pagination::WITH => $conditions
+
+		]);
 	}
 
 	/**
@@ -448,18 +475,6 @@ EOT;
 		return new View\RescueEvent($this, $html);
 	}
 
-	protected function init_range($count, array $conditions)
-	{
-		return [
-
-			'page' => $conditions['page'],
-			'limit' => $conditions['limit'],
-			'count' => $count,
-			'with' => $this->filter_conditions($conditions)
-
-		];
-	}
-
 	protected $provider;
 
 	protected function get_provider()
@@ -486,7 +501,7 @@ EOT;
 
 		$this->provider = $provider = new $provider($this->module->model);
 
-		$records =  $provider($conditions);
+		$records = $provider($conditions);
 
 		if ($records)
 		{
@@ -499,7 +514,7 @@ EOT;
 
 		if ($this->renders == ViewOptions::RENDERS_ONE)
 		{
-			return current($records);
+			return $records->one;
 		}
 
 		return $records;
@@ -508,9 +523,9 @@ EOT;
 	/**
 	 * Alter the records provided by the provider.
 	 *
-	 * @param array $records
+	 * @param RecordCollection $records
 	 */
-	protected function alter_records(array &$records)
+	protected function alter_records($records)
 	{
 
 	}
@@ -609,13 +624,6 @@ EOT;
 
 		unset($variables['this']);
 		unset($variables['self']);
-
-		$provider = $this->provider;
-
-		if ($provider)
-		{
-			$variables['range'] = $this->init_range($provider->count, $provider->conditions + $this->conditions);
-		}
 
 		$app = $this->app;
 
