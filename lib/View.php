@@ -503,6 +503,11 @@ EOT;
 
 		$records = $provider($conditions);
 
+		if ($records instanceof RecordCollection)
+		{
+			new RecordCollection\AlterEvent($records);
+		}
+
 		if ($records)
 		{
 			new BeforeAlterRecordsEvent($this, $records);
