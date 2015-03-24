@@ -11,24 +11,21 @@
 
 namespace Icybee\Modules\Views;
 
-use Brickrouge\ElementIsEmpty;
-use Brickrouge\Pagination;
 use ICanBoogie\Facets\FetcherInterface;
 use ICanBoogie\AuthenticationRequired;
 use ICanBoogie\Debug;
-use ICanBoogie\Event;
 use ICanBoogie\Facets\RecordCollection;
 use ICanBoogie\I18n;
-use ICanBoogie\Module;
 use ICanBoogie\Object;
+use ICanBoogie\Render\TemplateNotFound;
 
-use Brickrouge\Document;
 use Brickrouge\Element;
-use Brickrouge\Pager;
+use Brickrouge\ElementIsEmpty;
+use Brickrouge\Document;
+use Brickrouge\Pagination;
 
 use BlueTihi\Context;
 
-use ICanBoogie\Render\TemplateNotFound;
 use Icybee\Modules\Nodes\Node;
 use Icybee\Modules\Views\View\RenderEvent;
 use Icybee\Modules\Views\View\AlterRecordsEvent;
@@ -316,6 +313,7 @@ class View extends Object
 		$data = $this->data;
 		$context['this'] = $data;
 		$context['view'] = $this;
+		$context['page'] = $this->page;
 		$context['pagination'] = '';
 
 		if ($data instanceof RecordCollection)
