@@ -480,6 +480,12 @@ EOT;
 		return $this->provider;
 	}
 
+	/**
+	 * @param $provider
+	 * @param array $conditions
+	 *
+	 * @return RecordCollection|\ICanBoogie\ActiveRecord
+	 */
 	protected function provide($provider, array $conditions)
 	{
 		if (!($provider instanceof FetcherInterface) && !class_exists($provider))
