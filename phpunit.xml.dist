@@ -12,8 +12,14 @@
          bootstrap="./tests/bootstrap.php"
 >
     <testsuites>
-        <testsuite name="Test Suite">
+        <testsuite name="icybee/module-views">
             <directory>./tests</directory>
         </testsuite>
     </testsuites>
+
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">./lib</directory>
+		</whitelist>
+	</filter>
 </phpunit>

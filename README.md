@@ -137,7 +137,7 @@ Displays a view.
 
 ## Requirement
 
-The package requires PHP 5.4 or later.
+The package requires PHP 5.5 or later.
 
 
 
@@ -149,7 +149,7 @@ The recommended way to install this package is through [Composer](http://getcomp
 Create a `composer.json` file and run `php composer.phar install` command to install it:
 
 ```
-$ composer require icybee/module-views:dev-master
+$ composer require icybee/module-views
 ```
 
 Note: This module is part of the modules required by [Icybee](http://icybee.org).
