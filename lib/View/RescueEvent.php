@@ -11,10 +11,14 @@
 
 namespace Icybee\Modules\Views\View;
 
+use ICanBoogie\Event;
+
+use Icybee\Modules\Views\View;
+
 /**
  * Event fired when the view inner HTML is empty.
  */
-class RescueEvent extends \ICanBoogie\Event
+class RescueEvent extends Event
 {
 	/**
 	 * Reference to the rescued HTML.
@@ -23,7 +27,7 @@ class RescueEvent extends \ICanBoogie\Event
 	 */
 	public $html;
 
-	public function __construct(\Icybee\Modules\Views\View $target, &$html)
+	public function __construct(View $target, &$html)
 	{
 		$this->html = &$html;
 

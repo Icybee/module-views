@@ -11,13 +11,17 @@
 
 namespace Icybee\Modules\Views\View;
 
+use ICanBoogie\Event;
+
+use Icybee\Modules\Views\View;
+
 /**
  * Event class for the `Icybee\Modules\Views\View::alter_records` event.
  *
  * Event hooks may use this event to alter the records provided to the view, after its
  * `alter_records` method was invoked.
  */
-class AlterRecordsEvent extends \ICanBoogie\Event
+class AlterRecordsEvent extends Event
 {
 	/**
 	 * Reference to the records.
@@ -29,10 +33,10 @@ class AlterRecordsEvent extends \ICanBoogie\Event
 	/**
 	 * The event is constructed with the type `alter_records`.
 	 *
-	 * @param \Icybee\Modules\Views\View $target
+	 * @param View $target
 	 * @param array $records Reference to the records.
 	 */
-	public function __construct(\Icybee\Modules\Views\View $target, &$records)
+	public function __construct(View $target, &$records)
 	{
 		$this->records = &$records;
 

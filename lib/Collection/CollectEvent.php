@@ -11,12 +11,16 @@
 
 namespace Icybee\Modules\Views\Collection;
 
+use ICanBoogie\Event;
+
+use Icybee\Modules\Views\Collection;
+
 /**
  * Event class for the `Icybee\Modules\Views\Collection::collect` event.
  *
  * Event hooks may use this event to alter the view collection.
  */
-class CollectEvent extends \ICanBoogie\Event
+class CollectEvent extends Event
 {
 	/**
 	 * Reference to the collection to alter.
@@ -28,10 +32,10 @@ class CollectEvent extends \ICanBoogie\Event
 	/**
 	 * The event is constructed with the type 'collect'.
 	 *
-	 * @param \Icybee\Modules\Views\Collection $target
+	 * @param Collection $target
 	 * @param array $collection Reference to the view collection.
 	 */
-	public function __construct(\Icybee\Modules\Views\Collection $target, &$collection)
+	public function __construct(Collection $target, &$collection)
 	{
 		$this->collection = &$collection;
 

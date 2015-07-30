@@ -13,8 +13,12 @@ namespace Icybee\Modules\Views;
 
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\Operation;
+use ICanBoogie\Storage\Storage;
 
-class CacheManager implements \Icybee\Modules\Cache\CacheManagerInterface
+use Icybee\Modules\Cache\CacheManagerInterface;
+use Icybee\Modules\Cache\Module as CacheModule;
+
+class CacheManager implements CacheManagerInterface
 {
 	public $title = "Vues";
 	public $description = "Index des vues des modules.";
@@ -23,7 +27,7 @@ class CacheManager implements \Icybee\Modules\Cache\CacheManagerInterface
 	public $config_preview;
 
 	/**
-	 * @var \ICanBoogie\Vars
+	 * @var Storage
 	 */
 	private $vars;
 
@@ -73,7 +77,7 @@ class CacheManager implements \Icybee\Modules\Cache\CacheManagerInterface
 	 */
 	public function stat()
 	{
-		return \Icybee\Modules\Cache\Module::get_vars_stat('#^cached_views$#');
+		return CacheModule::get_vars_stat('#^cached_views$#');
 	}
 
 	/**

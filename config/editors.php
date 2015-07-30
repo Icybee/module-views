@@ -2,7 +2,8 @@
 
 namespace Icybee\Modules\Views;
 
-return array
-(
-	'view' => __NAMESPACE__ . '\ViewEditor'
-);
+return [
+
+	'view' => ViewEditor::class
+
+];

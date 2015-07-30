@@ -16,7 +16,7 @@ namespace Icybee\Modules\Views\Collection;
  */
 class ViewNotDefined extends \RuntimeException
 {
-	public function __construct($id, $code=500, \Exception $previous=null)
+	public function __construct($id, $code = 500, \Exception $previous = null)
 	{
 		parent::__construct("View not defined: $id.", $code, $previous);
 	}

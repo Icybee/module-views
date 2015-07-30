@@ -11,10 +11,14 @@
 
 namespace Icybee\Modules\Views\View;
 
+use ICanBoogie\Event;
+
+use Icybee\Modules\Views\View;
+
 /**
  * Event fired after the view was rendered.
  */
-class RenderEvent extends \ICanBoogie\Event
+class RenderEvent extends Event
 {
 	/**
 	 * Reference to the inner HTML of the view.
@@ -26,10 +30,10 @@ class RenderEvent extends \ICanBoogie\Event
 	/**
 	 * Create an event of type `render`.
 	 *
-	 * @param \Icybee\Modules\Views\View $target
+	 * @param View $target
 	 * @param string $html Reference to the inner HTML of the view.
 	 */
-	public function __construct(\Icybee\Modules\Views\View $target, &$html)
+	public function __construct(View $target, &$html)
 	{
 		$this->html = &$html;
 

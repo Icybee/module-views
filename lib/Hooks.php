@@ -16,7 +16,7 @@ use ICanBoogie\Operation;
 use ICanBoogie\PropertyNotDefined;
 use ICanBoogie\Routing\Pattern;
 
-use Icybee\Modules\Cache\Collection as CacheCollection;
+use Icybee\Modules\Cache\CacheCollection as CacheCollection;
 use Icybee\Modules\Nodes\Node;
 use Icybee\Modules\Sites\Site;
 

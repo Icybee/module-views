@@ -11,10 +11,10 @@
 
 namespace Icybee\Modules\Views;
 
-use ICanBoogie\Facets\FetcherInterface;
-use ICanBoogie\AuthenticationRequired;
 use ICanBoogie\Debug;
+use ICanBoogie\Facets\FetcherInterface;
 use ICanBoogie\Facets\RecordCollection;
+use ICanBoogie\HTTP\AuthenticationRequired;
 use ICanBoogie\I18n;
 use ICanBoogie\Object;
 use ICanBoogie\Render\TemplateNotFound;

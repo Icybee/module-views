@@ -11,7 +11,10 @@
 
 namespace Icybee\Modules\Views\View;
 
+use ICanBoogie\Event;
 use ICanBoogie\Facets\RecordCollection;
+
+use Icybee\Modules\Views\View;
 
 /**
  * Event class for the `Icybee\Modules\Views\View::alter_records:before` event.
@@ -19,7 +22,7 @@ use ICanBoogie\Facets\RecordCollection;
  * Event hooks may use this event to alter the records provided to the view, before its
  * `alter_records` method is invoked.
  */
-class BeforeAlterRecordsEvent extends \ICanBoogie\Event
+class BeforeAlterRecordsEvent extends Event
 {
 	/**
 	 * Reference to the records.
@@ -31,10 +34,10 @@ class BeforeAlterRecordsEvent extends \ICanBoogie\Event
 	/**
 	 * The event is constructed with the type `alter_records:before`.
 	 *
-	 * @param \Icybee\Modules\Views\View $target
+	 * @param View $target
 	 * @param RecordCollection $records Reference to the records.
 	 */
-	public function __construct(\Icybee\Modules\Views\View $target, RecordCollection &$records)
+	public function __construct(View $target, RecordCollection &$records)
 	{
 		$this->records = &$records;
 
