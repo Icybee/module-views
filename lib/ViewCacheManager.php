@@ -15,10 +15,10 @@ use ICanBoogie\HTTP\Request;
 use ICanBoogie\Operation;
 use ICanBoogie\Storage\Storage;
 
-use Icybee\Modules\Cache\CacheManagerInterface;
+use Icybee\Modules\Cache\CacheManager;
 use Icybee\Modules\Cache\Module as CacheModule;
 
-class CacheManager implements CacheManagerInterface
+class ViewCacheManager implements CacheManager
 {
 	public $title = "Vues";
 	public $description = "Index des vues des modules.";

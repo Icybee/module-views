@@ -34,7 +34,7 @@ use Icybee\Modules\Views\View\BeforeAlterRecordsEvent;
 /**
  * A view on provided data.
  *
- * @property-read \ICanBoogie\Core $app
+ * @property-read \ICanBoogie\Core|\Icybee\Binding\CoreBindings $app
  * @property-read string $id The identifier of the view.
  * @property-read mixed $data The data provided by the view's provider.
  * @property-read array $default_conditions Default conditions.
@@ -424,7 +424,7 @@ class View extends Object
 			return $placeholder;
 		}
 
-		$placeholder = I18n\t('empty_view', [], [
+		$placeholder = $this->app->translate('empty_view', [], [
 
 			'scope' => "$module_flat_id.$type",
 			'default' => null
@@ -453,7 +453,7 @@ class View extends Object
 </div>
 EOT;
 
-		return I18n\t('empty_view', [], [
+		return $this->app->translate('empty_view', [], [
 
 			'scope' => "$module_flat_id.$type",
 			'default' => $default

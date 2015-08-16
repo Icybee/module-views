@@ -37,7 +37,7 @@ class Hooks
 		$request = $event->request;
 		$contents = $request['contents'];
 		$editor_ids = $request['editors'];
-		$nid = $event->response->rc['key'];
+		$nid = $event->rc['key'];
 
 		if ($editor_ids)
 		{
@@ -75,7 +75,7 @@ class Hooks
 	 */
 	static public function on_cache_collection_collect(CacheCollection\CollectEvent $event, CacheCollection $collection)
 	{
-		$event->collection['icybee.views'] = new CacheManager;
+		$event->collection['icybee.views'] = new ViewCacheManager;
 	}
 
 	/*

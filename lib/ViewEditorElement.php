@@ -69,11 +69,11 @@ class ViewEditorElement extends Element implements \Icybee\Modules\Editor\Editor
 				if (isset($descriptor[Descriptor::CATEGORY]))
 				{
 					$category = $descriptors[$module_id][Descriptor::CATEGORY];
-					$category = I18n\t($category, [ ], [ 'scope' => 'module_category' ]);
+					$category = $this->t($category, [ ], [ 'scope' => 'module_category' ]);
 				}
 
 				$subcategory = $descriptor[Descriptor::TITLE];
-				$subcategory = I18n\t(strtr($module_id, '.', '_'), [ ], [ 'scope' => 'module_title', 'default' => $subcategory ]);
+				$subcategory = $this->t(strtr($module_id, '.', '_'), [ ], [ 'scope' => 'module_title', 'default' => $subcategory ]);
 			}
 
 			$categories[$category][$subcategory][$id] = $view;
@@ -160,7 +160,7 @@ EOT;
 						continue;
 					}
 
-					$title = I18n\t($view[ViewOptions::TITLE], $view[ViewOptions::TITLE_ARGS]);
+					$title = $this->t($view[ViewOptions::TITLE], $view[ViewOptions::TITLE_ARGS]);
 
 					$description = null;
 
