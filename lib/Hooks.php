@@ -159,7 +159,7 @@ class Hooks
 	 *
 	 * @param ActiveRecord $record
 	 *
-	 * @return
+	 * @return string
 	 */
 	static public function get_url(ActiveRecord $record)
 	{

@@ -63,7 +63,7 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 			$engine = \Patron\Engine::get_singleton();
 		}
 
-		$page = $this->resolve_view_page();
+		$page = $this->resolve_view_page($id);
 		$class = $this->resolve_view_classname($definition);
 
 		$view = new $class($id, $definition, $engine, $this->app->document, $page);
@@ -75,9 +75,11 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 	/**
 	 * Resolves the page on which the view is displayed.
 	 *
+	 * @param string $id
+	 *
 	 * @return \Icybee\Modules\Pages\Page
 	 */
-	private function resolve_view_page()
+	private function resolve_view_page($id)
 	{
 		$request = $this->app->request;
 
