@@ -16,7 +16,7 @@ use ICanBoogie\Facets\FetcherInterface;
 use ICanBoogie\Facets\RecordCollection;
 use ICanBoogie\HTTP\AuthenticationRequired;
 use ICanBoogie\I18n;
-use ICanBoogie\Object;
+use ICanBoogie\Prototyped;
 use ICanBoogie\Render\TemplateNotFound;
 
 use Brickrouge\Element;
@@ -42,7 +42,7 @@ use Icybee\Modules\Views\View\BeforeAlterRecordsEvent;
  * @property-read array $important_conditions Important conditions, overwriting user conditions.
  * @property-read array $conditions Conditions resolved from the _default_, _user_, and _important_ conditions.
  */
-class View extends Object
+class View extends Prototyped
 {
 	/**
 	 * @deprecated
