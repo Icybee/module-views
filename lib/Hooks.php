@@ -22,6 +22,20 @@ use Icybee\Modules\Sites\Site;
 
 class Hooks
 {
+	/**
+	 * Synthesizes the `views` config.
+	 *
+	 * @param array $fragments
+	 *
+	 * @return array
+	 */
+	static public function synthesize_config(array $fragments)
+	{
+		$synthesizer = new ViewConfigSynthesizer;
+
+		return $synthesizer($fragments);
+	}
+
 	/*
 	 * EVENTS
 	 */

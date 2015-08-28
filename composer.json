@@ -26,5 +26,13 @@
 	},
 	"autoload": {
 		"psr-4": { "Icybee\\Modules\\Views\\": "lib" }
+	},
+
+	"extra": {
+		"icanboogie": {
+			"config-constructor": {
+				"views": "Icybee\\Modules\\Views\\Hooks::synthesize_config"
+			}
+		}
 	}
 }

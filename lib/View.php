@@ -44,51 +44,6 @@ use Icybee\Modules\Views\View\BeforeAlterRecordsEvent;
  */
 class View extends Prototyped
 {
-	/**
-	 * @deprecated
-	 */
-	const ACCESS_CALLBACK = 'access_callback';
-	/**
-	 * @deprecated
-	 */
-	const ASSETS = 'assets';
-	/**
-	 * @deprecated
-	 */
-	const CLASSNAME = 'class';
-	/**
-	 * @deprecated
-	 */
-	const CONDITIONS = 'conditions';
-	/**
-	 * @deprecated
-	 */
-	const DEFAULT_CONDITIONS = 'default_conditions';
-	/**
-	 * @deprecated
-	 */
-	const PROVIDER = 'provider';
-	/**
-	 * @deprecated
-	 */
-	const RENDERS = 'renders';
-	/**
-	 * @deprecated
-	 */
-	const RENDERS_ONE = 1;
-	/**
-	 * @deprecated
-	 */
-	const RENDERS_MANY = 2;
-	/**
-	 * @deprecated
-	 */
-	const RENDERS_OTHER = 3;
-	/**
-	 * @deprecated
-	 */
-	const TITLE = 'title';
-
 	protected $id;
 
 	protected function get_id()
@@ -266,9 +221,11 @@ class View extends Prototyped
 		$assets = [ 'css' => [], 'js' => [] ];
 		$options = $this->options;
 
-		if (isset($options['assets']))
+		foreach ($options[ViewOptions::ASSETS] as $k => $asset)
 		{
-			$assets = $options['assets'];
+			$extension = pathinfo($asset, PATHINFO_EXTENSION);
+
+			$assets[$extension][$k] = $asset;
 		}
 
 		$this->add_assets($this->document, $assets);
@@ -366,24 +323,14 @@ class View extends Prototyped
 	 */
 	protected function add_assets(Document $document, array $assets = [])
 	{
-		if (isset($assets['js']))
+		foreach ($assets['js'] as $asset)
 		{
-			foreach ((array) $assets['js'] as $asset)
-			{
-				list($file, $priority) = (array) $asset + [ 1 => 0 ];
-
-				$document->js->add($file, $priority);
-			}
+			$document->js->add($asset);
 		}
 
-		if (isset($assets['css']))
+		foreach ($assets['css'] as $asset)
 		{
-			foreach ((array) $assets['css'] as $asset)
-			{
-				list($file, $priority) = (array) $asset + [ 1 => 0 ];
-
-				$document->css->add($file, $priority);
-			}
+			$document->css->add($asset);
 		}
 	}
 
@@ -696,7 +643,7 @@ EOT;
 
 		#
 
-		if (preg_match('#\.html$#', $this->page->template))
+//		if (preg_match('#\.html$#', $this->page->template))
 		{
 			if (Debug::is_dev())
 			{

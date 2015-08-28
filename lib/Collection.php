@@ -11,6 +11,7 @@
 
 namespace Icybee\Modules\Views;
 
+use ICanBoogie\Core;
 use ICanBoogie\Module\ModuleCollection;
 use ICanBoogie\OffsetNotWritable;
 
@@ -48,14 +49,14 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 			if (!$collection)
 			{
-				$collection = $this->collect($app->modules);
+				$collection = $this->collect($app);
 
 				$app->vars['cached_views'] = $collection;
 			}
 		}
 		else
 		{
-			$collection = $this->collect($app->modules);
+			$collection = $this->collect($app);
 		}
 
 		$this->collection = $collection;
@@ -67,7 +68,7 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 	 * After the views defined by modules have been collected {@link Collection\CollectEvent} is
 	 * fired.
 	 *
-	 * @param ModuleCollection $modules
+	 * @param Core $app
 	 *
 	 * @return array[string]array
 	 *
@@ -75,7 +76,7 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 	 * {@link ViewOptions::TYPE}, {@link ViewOptions::MODULE} or {@link ViewOptions::RENDERS}
 	 * properties are empty.
 	 */
-	protected function collect(ModuleCollection $modules)
+	protected function collect(Core $app)
 	{
 		static $required = [
 
@@ -86,44 +87,13 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 		];
 
-		$collection = [];
-
-		foreach ($modules->enabled_modules_descriptors as $id => $descriptor)
-		{
-			$module = $modules[$id];
-
-			if (!$module->has_property('views'))
-			{
-				continue;
-			}
-
-			$module_views = $module->views;
-
-			foreach ($module_views as $type => $definition)
-			{
-				$definition += [
-
-					ViewOptions::MODULE => $id,
-					ViewOptions::TYPE => $type
-
-				];
-
-				$collection[$id . '/' . $type] = $definition;
-			}
-		}
+		$collection = $app->configs['views'];
 
 		new Collection\CollectEvent($this, $collection);
 
 		foreach ($collection as $id => &$definition)
 		{
-			$definition += [
-
-				ViewOptions::ACCESS_CALLBACK => null,
-				ViewOptions::CLASSNAME => null,
-				ViewOptions::PROVIDER_CLASSNAME => null,
-				ViewOptions::TITLE_ARGS => []
-
-			];
+			$definition = ViewOptions::normalize($definition);
 
 			foreach ($required as $property)
 			{
