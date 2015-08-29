@@ -44,9 +44,9 @@ class Hooks
 	 * Updates view targets.
 	 *
 	 * @param Operation\ProcessEvent $event
-	 * @param \Icybee\Modules\Pages\SaveOperation $operation
+	 * @param \Icybee\Modules\Pages\Operation\SaveOperation $operation
 	 */
-	static public function on_page_save(Operation\ProcessEvent $event, \Icybee\Modules\Pages\SaveOperation $operation)
+	static public function on_page_save(Operation\ProcessEvent $event, \Icybee\Modules\Pages\Operation\SaveOperation $operation)
 	{
 		$request = $event->request;
 		$contents = $request['contents'];
