@@ -28,14 +28,23 @@ class ViewConfigSynthesizer
 	public function __invoke(array $fragments)
 	{
 		$modules = $this->collect_modules($fragments);
-		$directives = $this->extract_directives($modules);
-		$this->process_directives($directives, $modules);
+		$this->resolve_assets($modules);
+		$modules = $this->unwind_modules_collection($modules);
+		$modules = $this->resolve_heritage($modules);
 
-		return $this->unwind_modules($modules);
+		return $this->unwind_views($modules);
 	}
 
 	/**
 	 * Collects modules from config fragments.
+	 *
+	 * Because multiple module can be defined in a single fragment and a module identifier can
+	 * be used several times in different fragments, modules are collected in an array which
+	 * values have the following keys:
+	 *
+	 * - `id`: The module identifier.
+	 * - `views`: The views defined for this module in a fragment.
+	 * - `pathname`: The pathname of the fragment defining this module.
 	 *
 	 * @param array $fragments
 	 *
@@ -47,11 +56,15 @@ class ViewConfigSynthesizer
 
 		foreach ($fragments as $pathname => $fragment)
 		{
-			$path = dirname($pathname) . DIRECTORY_SEPARATOR;
-
 			foreach ($fragment as $module_id => $module)
 			{
-				$modules[$module_id] = [ Options::DIRECTIVE_PATH => $path ] + $module;
+				$modules[] = [
+
+					'id' => $module_id,
+					'views' => $module,
+					'pathname' => $pathname
+
+				];
 			}
 		}
 
@@ -59,101 +72,31 @@ class ViewConfigSynthesizer
 	}
 
 	/**
-	 * Extracts directives from modules.
-	 *
-	 * **Note:** The directives are removed from the definitions.
+	 * Resolves assets.
 	 *
 	 * @param array $modules
-	 *
-	 * @return array
-	 *
-	 * @throws \Exception if a directive is invalid.
 	 */
-	protected function extract_directives(array &$modules)
+	protected function resolve_assets(array &$modules)
 	{
-		$directives = [];
-
-		foreach ($modules as $module_id => &$module)
+		foreach ($modules as &$module)
 		{
-			foreach ($module as $key => $value)
-			{
-				if ($key{0} !== Options::DIRECTIVE_PREFIX)
-				{
-					continue;
-				}
+			$assets = $this->collect_assets($module);
 
-				$directive = substr($key, 1);
-
-				$this->assert_directive_is_valid($directive);
-
-				unset($module[$key]);
-
-				$directives[$directive][$module_id] = $value;
-			}
-		}
-
-		return $directives;
-	}
-
-	/**
-	 * Asserts that a directive is valid.
-	 *
-	 * @param string $directive
-	 *
-	 * @throws \Exception if the specified directive is invalid
-	 */
-	protected function assert_directive_is_valid($directive)
-	{
-		if (!in_array(Options::DIRECTIVE_PREFIX . $directive, [ Options::DIRECTIVE_INHERITS, Options::DIRECTIVE_PATH ]))
-		{
-			throw new \Exception("Invalid directive [$directive]");
-		}
-	}
-
-	/**
-	 * Processes directives, altering modules.
-	 *
-	 * @param array $directives
-	 * @param array $modules
-	 */
-	protected function process_directives(array $directives, array &$modules)
-	{
-		foreach ($directives as $directive => $values)
-		{
-			$method = 'process_directive_' . $directive;
-
-			foreach ($values as $module_id => $value)
-			{
-				$this->$method($value, $module_id, $modules);
-			}
-		}
-	}
-
-	/**
-	 * Processes the directive {@link Options::DIRECTIVE_PATH}.
-	 *
-	 * Assets are resolved relatively to the value of the directive.
-	 *
-	 * @param string $directive_value
-	 * @param string $module_id
-	 * @param array $modules
-	 */
-	protected function process_directive_path($directive_value, $module_id, array &$modules)
-	{
-		foreach ($modules[$module_id] as $view_id => &$options)
-		{
-			if (empty($options[Options::ASSETS]))
+			if (!$assets)
 			{
 				continue;
 			}
 
-			foreach ($options[Options::ASSETS] as &$relative_path)
+			$pathname = $module['pathname'];
+			$path = dirname($pathname) . DIRECTORY_SEPARATOR;
+
+			foreach ($assets as &$relative_path)
 			{
-				$absolute_path = realpath($directive_value . $relative_path);
+				$absolute_path = realpath($path . $relative_path);
 
 				if (!$absolute_path)
 				{
-					throw new \LogicException("Unable to resolve $relative_path from $directive_value.");
+					throw new \LogicException("Unable to resolve path `$relative_path` in `$pathname` ({$module['id']})");
 				}
 
 				$relative_path = $absolute_path;
@@ -162,17 +105,78 @@ class ViewConfigSynthesizer
 	}
 
 	/**
-	 * Processes the directive {@link Options::DIRECTIVE_INHERITS}.
+	 * Collect a module's assets by reference.
 	 *
-	 * View definitions are inherited from another module.
+	 * @param array $module
 	 *
-	 * @param string $directive_value
-	 * @param string $module_id
-	 * @param array $modules
+	 * @return array
 	 */
-	protected function process_directive_inherits($directive_value, $module_id, array &$modules)
+	protected function collect_assets(array &$module)
 	{
-		$modules[$module_id] = \ICanBoogie\array_merge_recursive($modules[$directive_value], $modules[$module_id]);
+		$assets = [];
+
+		foreach ($module['views'] as &$view)
+		{
+			if (empty($view[Options::ASSETS]))
+			{
+				continue;
+			}
+
+			foreach ($view[Options::ASSETS] as &$asset)
+			{
+				$assets[] = &$asset;
+			}
+		}
+
+		return $assets;
+	}
+
+	/**
+	 * Unwind modules into view.
+	 *
+	 * @param array $modules
+	 *
+	 * @return array
+	 */
+	protected function unwind_modules_collection(array $modules)
+	{
+		$views = [];
+
+		foreach ($modules as $module)
+		{
+			$views[$module['id']][] = $module['views'];
+		}
+
+		return array_map(function($v) {
+
+			return call_user_func_array('array_merge', $v);
+
+		}, $views);
+	}
+
+	/**
+	 * Resolves heritage between modules.
+	 *
+	 * @param array $modules
+	 *
+	 * @return array
+	 */
+	protected function resolve_heritage(array $modules)
+	{
+		foreach ($modules as &$module)
+		{
+			if (empty($module[Options::DIRECTIVE_INHERITS]))
+			{
+				continue;
+			}
+
+			$inherits = $module[Options::DIRECTIVE_INHERITS];
+			unset($module[Options::DIRECTIVE_INHERITS]);
+
+			$module = \ICanBoogie\array_merge_recursive($modules[$inherits], $module);
+		}
+
+		return $modules;
 	}
 
 	/**
@@ -182,7 +186,7 @@ class ViewConfigSynthesizer
 	 *
 	 * @return array
 	 */
-	protected function unwind_modules(array $modules)
+	protected function unwind_views(array $modules)
 	{
 		$views = [];
 
