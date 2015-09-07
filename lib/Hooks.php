@@ -97,7 +97,7 @@ class Hooks
 	 */
 
 	static private $pages_model;
-	static private $url_cache_by_siteid = [];
+	static private $url_cache_by_site_id = [];
 
 	/**
 	 * Returns the relative URL of a record for a view type.
@@ -131,15 +131,25 @@ class Hooks
 			}
 		}
 
+		if (isset($app->routes[$type]))
+		{
+			return $app->url_for($type, $target);
+		}
+
+
+
+
+
+
 		$constructor = isset($target->constructor) ? $target->constructor : $target->model->id;
 		$constructor = strtr($constructor, '.', '_');
 
 		$key = 'views.targets.' . $constructor . '/' . $type;
-		$site_id = !empty($target->siteid) ? $target->siteid : $app->site_id;
+		$site_id = !empty($target->site_id) ? $target->site_id : $app->site_id;
 
-		if (isset(self::$url_cache_by_siteid[$site_id][$key]))
+		if (isset(self::$url_cache_by_site_id[$site_id][$key]))
 		{
-			$pattern = self::$url_cache_by_siteid[$site_id][$key];
+			$pattern = self::$url_cache_by_site_id[$site_id][$key];
 		}
 		else
 		{
@@ -157,7 +167,7 @@ class Hooks
 				}
 			}
 
-			self::$url_cache_by_siteid[$site_id][$key] = $pattern;
+			self::$url_cache_by_site_id[$site_id][$key] = $pattern;
 		}
 
 		if (!$pattern)

@@ -92,6 +92,11 @@ class ViewConfigSynthesizer
 
 			foreach ($assets as &$relative_path)
 			{
+				if (preg_match('/^https?:\/\//', $relative_path))
+				{
+					continue;
+				}
+
 				$absolute_path = realpath($path . $relative_path);
 
 				if (!$absolute_path)
