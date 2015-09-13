@@ -20,6 +20,8 @@ use Icybee\Modules\Cache\Module as CacheModule;
 
 class ViewCacheManager implements CacheManager
 {
+	const REGEX = '/^cached_views$/';
+
 	public $title = "Vues";
 	public $description = "Index des vues des modules.";
 	public $group = 'system';
@@ -77,7 +79,7 @@ class ViewCacheManager implements CacheManager
 	 */
 	public function stat()
 	{
-		return CacheModule::get_vars_stat('#^cached_views$#');
+		return CacheModule::get_storage_stat($this->vars, self::REGEX);
 	}
 
 	/**
