@@ -481,7 +481,7 @@ EOT;
 	 *
 	 * @param RecordCollection $records
 	 */
-	protected function alter_records($records)
+	protected function alter_records(&$records)
 	{
 
 	}
