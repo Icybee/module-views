@@ -643,14 +643,12 @@ EOT;
 
 		#
 
-//		if (preg_match('#\.html$#', $this->page->template))
+		if (Debug::is_dev())
 		{
-			if (Debug::is_dev())
-			{
 
-				$possible_templates = implode(PHP_EOL, $this->template_tries);
+			$possible_templates = implode(PHP_EOL, $this->template_tries);
 
-				$html = <<<EOT
+			$html = <<<EOT
 
 <!-- Possible templates for view "{$this->id}":
 
@@ -659,15 +657,12 @@ $possible_templates
 -->
 $html
 EOT;
-			}
-
-			$this->element[Element::INNER_HTML] = $html;
-			$this->element['data-template-path'] = $this->template_pathname;
-
-			$html = (string) $this->element;
 		}
 
-		return $html;
+		$this->element[Element::INNER_HTML] = $html;
+		$this->element['data-template-path'] = $this->template_pathname;
+
+		return (string) $this->element;
 	}
 
 	/**

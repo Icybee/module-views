@@ -12,6 +12,7 @@
 namespace Icybee\Modules\Views\View;
 
 use ICanBoogie\Event;
+use ICanBoogie\Facets\RecordCollection;
 
 use Icybee\Modules\Views\View;
 
@@ -23,10 +24,12 @@ use Icybee\Modules\Views\View;
  */
 class AlterRecordsEvent extends Event
 {
+	const TYPE = 'alter_records';
+
 	/**
 	 * Reference to the records.
 	 *
-	 * @var array
+	 * @var RecordCollection|array
 	 */
 	public $records;
 
@@ -34,12 +37,12 @@ class AlterRecordsEvent extends Event
 	 * The event is constructed with the type `alter_records`.
 	 *
 	 * @param View $target
-	 * @param array $records Reference to the records.
+	 * @param RecordCollection|array $records Reference to the records.
 	 */
 	public function __construct(View $target, &$records)
 	{
 		$this->records = &$records;
 
-		parent::__construct($target, 'alter_records');
+		parent::__construct($target, self::TYPE);
 	}
 }

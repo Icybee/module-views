@@ -24,6 +24,8 @@ use Icybee\Modules\Views\View;
  */
 class BeforeAlterRecordsEvent extends Event
 {
+	const TYPE = 'alter_records:before';
+
 	/**
 	 * Reference to the records.
 	 *
@@ -41,6 +43,6 @@ class BeforeAlterRecordsEvent extends Event
 	{
 		$this->records = &$records;
 
-		parent::__construct($target, 'alter_records:before');
+		parent::__construct($target, self::TYPE);
 	}
 }
