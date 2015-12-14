@@ -27,6 +27,7 @@ use Brickrouge\Pagination;
 use BlueTihi\Context;
 
 use Icybee\Modules\Nodes\Node;
+use Icybee\Modules\Pages\Page;
 use Icybee\Modules\Views\View\RenderEvent;
 use Icybee\Modules\Views\View\AlterRecordsEvent;
 use Icybee\Modules\Views\View\BeforeAlterRecordsEvent;
@@ -41,6 +42,8 @@ use Icybee\Modules\Views\View\BeforeAlterRecordsEvent;
  * @property-read array $user_conditions User conditions, overwriting default conditions.
  * @property-read array $important_conditions Important conditions, overwriting user conditions.
  * @property-read array $conditions Conditions resolved from the _default_, _user_, and _important_ conditions.
+ * @property-read \ICanBoogie\Module $module
+ * @property-read Page $page
  */
 class View extends Prototyped
 {
@@ -82,7 +85,20 @@ class View extends Prototyped
 
 	protected $engine;
 	protected $document;
+
+	/**
+	 * @var Page
+	 */
 	protected $page;
+
+	/**
+	 * @return Page
+	 */
+	protected function get_page()
+	{
+		return $this->page;
+	}
+
 	protected $template;
 
 	protected $module;
@@ -432,6 +448,8 @@ EOT;
 	 * @param array $conditions
 	 *
 	 * @return RecordCollection|\ICanBoogie\ActiveRecord
+	 *
+	 * @throws NotFound
 	 */
 	protected function provide($provider, array $conditions)
 	{
@@ -445,7 +463,9 @@ EOT;
 			]));
 		}
 
-		if ($this->renders == ViewOptions::RENDERS_ONE)
+		$rendering_one = $this->renders == ViewOptions::RENDERS_ONE;
+
+		if ($rendering_one)
 		{
 			$conditions['limit'] = 1;
 		}
@@ -453,6 +473,11 @@ EOT;
 		$this->provider = $provider = new $provider($this->module->model);
 
 		$records = $provider($conditions);
+
+		if ($rendering_one && !count($records))
+		{
+			throw new NotFound($this);
+		}
 
 		if ($records instanceof RecordCollection)
 		{
