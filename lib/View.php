@@ -12,7 +12,7 @@
 namespace Icybee\Modules\Views;
 
 use ICanBoogie\Debug;
-use ICanBoogie\Facets\FetcherInterface;
+use ICanBoogie\Facets\Fetcher;
 use ICanBoogie\Facets\RecordCollection;
 use ICanBoogie\HTTP\AuthenticationRequired;
 use ICanBoogie\I18n;
@@ -453,7 +453,7 @@ EOT;
 	 */
 	protected function provide($provider, array $conditions)
 	{
-		if (!($provider instanceof FetcherInterface) && !class_exists($provider))
+		if (!($provider instanceof Fetcher) && !class_exists($provider))
 		{
 			throw new \InvalidArgumentException(\ICanBoogie\format('Provider class %class for view %id does not exists', [
 
