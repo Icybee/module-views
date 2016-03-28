@@ -402,7 +402,7 @@ class View extends Prototyped
 		$class = get_class($this);
 
 		$default = <<<EOT
-<div class="alert undismissable">
+<div class="alert alert-warning">
 	<p>The view is empty, no record was found.</p>
 
 	<ul>
