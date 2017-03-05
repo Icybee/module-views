@@ -35,7 +35,6 @@ use Icybee\Modules\Views\View\BeforeAlterRecordsEvent;
 /**
  * A view on provided data.
  *
- * @property-read \ICanBoogie\Core|\Icybee\Binding\CoreBindings $app
  * @property-read string $id The identifier of the view.
  * @property-read mixed $data The data provided by the view's provider.
  * @property-read array $default_conditions Default conditions.

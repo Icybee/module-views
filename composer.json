@@ -2,32 +2,45 @@
 	"name": "icybee/module-views",
 	"type": "icanboogie-module",
 	"description": "Allows dynamic data from modules to be displayed in content zones.",
-	"keywords": [ "view" ],
+	"keywords": [
+		"view"
+	],
 	"license": "BSD-3-Clause",
 	"authors": [
 		{
 			"name": "Olivier Laviale",
 			"email": "olivier.laviale@gmail.com",
-			"homepage": "http://www.weirdog.com/",
-			"role" : "Developer"
+			"homepage": "https://olvlvl.com/",
+			"role": "Developer"
 		}
 	],
 	"support": {
 		"issues": "https://github.com/Icybee/module-views/issues",
 		"source": "https://github.com/Icybee/module-views"
 	},
-
 	"minimum-stability": "dev",
-
+	"prefer-dist": true,
+	"prefer-stable": true,
 	"require": {
-		"php": "^5.5|^7.0",
-		"icanboogie/module-installer": "^1.2",
-		"icanboogie/facets": "^0.6"
+		"php": ">=5.6",
+		"icanboogie/event": "^3.0",
+		"icanboogie/facets": "^0.7",
+		"icanboogie/module": "^4.0",
+		"icybee/module-cache": "^4.0"
 	},
 	"autoload": {
-		"psr-4": { "Icybee\\Modules\\Views\\": "lib" }
+		"psr-4": {
+			"Icybee\\Modules\\Views\\": "lib"
+		}
 	},
-
+	"autoload-dev": {
+		"classmap": [
+			"tests/Application.php"
+		]
+	},
+	"scripts": {
+		"post-autoload-dump": "ICanBoogie\\Autoconfig\\Hooks::on_autoload_dump"
+	},
 	"extra": {
 		"icanboogie": {
 			"config-constructor": {

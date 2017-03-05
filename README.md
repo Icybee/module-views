@@ -1,4 +1,4 @@
-# Views [![Build Status](https://travis-ci.org/Icybee/module-views.svg?branch=2.1)](https://travis-ci.org/Icybee/module-views)
+# Views [![Build Status](https://travis-ci.org/Icybee/module-views.svg)](https://travis-ci.org/Icybee/module-views)
 
 The Views module (`views`) allows dynamic data from modules to be displayed in content zones.
 
@@ -137,7 +137,7 @@ Displays a view.
 
 ## Requirement
 
-The package requires PHP 5.5 or later.
+The package requires PHP 5.6 or later.
 
 
 
@@ -177,7 +177,7 @@ directory can later be cleaned with the `make clean` command.
 
 The package is continuously tested by [Travis CI](http://about.travis-ci.org/).
 
-[![Build Status](https://travis-ci.org/Icybee/module-views.svg?branch=2.1)](https://travis-ci.org/Icybee/module-views)
+[![Build Status](https://travis-ci.org/Icybee/module-views.svg)](https://travis-ci.org/Icybee/module-views)
 
 
 

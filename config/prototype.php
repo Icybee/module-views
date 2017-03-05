@@ -18,6 +18,6 @@ return [
 
 	'Icybee\Modules\Sites\Site::resolve_view_target' => $hooks . 'resolve_view_target',
 	'Icybee\Modules\Sites\Site::resolve_view_url' => $hooks . 'resolve_view_url',
-	'ICanBoogie\Core::lazy_get_views' => Collection::class . '::get'
+	'ICanBoogie\Application::lazy_get_views' => Collection::class . '::get'
 
 ];

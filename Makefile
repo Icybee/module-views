@@ -1,7 +1,7 @@
 # customization
 
 PACKAGE_NAME = icybee/module-views
-PACKAGE_VERSION = 3.0
+PACKAGE_VERSION = 4.0
 COMPOSER_ENV = COMPOSER_ROOT_VERSION=$(PACKAGE_VERSION)
 
 # do not edit the following lines
@@ -23,7 +23,7 @@ test: vendor
 
 test-coverage: vendor
 	@mkdir -p build/coverage
-	@phpunit --coverage-html build/coverage
+	@phpunit --coverage-html ../build/coverage
 
 doc: vendor
 	@mkdir -p build/docs
