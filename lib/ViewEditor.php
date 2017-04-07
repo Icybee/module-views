@@ -11,6 +11,8 @@
 
 namespace Icybee\Modules\Views;
 
+use function ICanBoogie\app;
+
 /**
  * View editor.
  */
@@ -20,7 +22,7 @@ class ViewEditor implements \Icybee\Modules\Editor\Editor
 
 	public function __construct()
 	{
-		$this->app = \ICanBoogie\app();
+		$this->app = app();
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 namespace Icybee\Modules\Views;
 
+use function ICanBoogie\app;
 use ICanBoogie\HTTP\Request;
 use ICanBoogie\Operation;
 use ICanBoogie\Storage\Storage;
@@ -35,7 +36,7 @@ class ViewCacheManager implements CacheManager
 
 	public function __construct()
 	{
-		$app = \ICanBoogie\app();
+		$app = app();
 		$this->vars = $app->vars;
 		$this->state = $app->config['cache views'];
 	}

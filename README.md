@@ -107,7 +107,7 @@ Returns the URL of a view.
 
 
 
-### `ICanBoogie\Core::get_views`
+### `ICanBoogie\Application::get_views`
 
 Returns the view collection.
 

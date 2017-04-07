@@ -11,6 +11,7 @@
 
 namespace Icybee\Modules\Views;
 
+use function ICanBoogie\app;
 use ICanBoogie\Application;
 use ICanBoogie\OffsetNotWritable;
 
@@ -40,7 +41,7 @@ class Collection implements \ArrayAccess, \IteratorAggregate
 
 	protected function __construct()
 	{
-		$app = \ICanBoogie\app();
+		$app = app();
 
 		if ($app->config['cache views'])
 		{
