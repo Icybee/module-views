@@ -22,9 +22,9 @@
 	"prefer-dist": true,
 	"prefer-stable": true,
 	"require": {
-		"php": "^5.6 || ^7.0",
+		"php": ">=5.6",
 		"icanboogie/module-installer": "^4.0",
-		"icanboogie/event": "^3.0",
+		"icanboogie/event": "^3.0|^4.0",
 		"icanboogie/facets": "^0.7",
 		"icybee/module-cache": "^4.0"
 	},
